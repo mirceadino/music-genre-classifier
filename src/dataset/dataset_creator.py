@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class DatasetCreator:
     """Converts raw data to data that can be used for training, validating and
@@ -26,5 +31,7 @@ class DatasetCreator:
         Returns:
             bool: True if successful. False otherwise.
         """
+        logger.info("[+] Creating dataset...")
         # TODO: Implement dataset creation.
+        logger.info("[+] Dataset created!")
         return True

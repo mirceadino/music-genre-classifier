@@ -19,22 +19,30 @@ class NeuralNetwork:
 
     def load(self, path):
         # TODO: Add documentation for this method.
+        logger.info("[+] Loading model...")
         self.__model.load(path)
+        logger.info("[+] Loading finished!")
 
     def save(self, path):
         # TODO: Add documentation for this method.
+        logger.info("[+] Saving model...")
         self.__model.save(path)
+        logger.info("[+] Saving finished!")
 
     def train(self, train_x, train_y, val_x, val_y):
         # TODO: Add documentation for this method.
+        logger.info("[+] Starting testing...")
         self.__model.fit(train_x, train_y, n_epoch=config.NUM_EPOCHES,
                          batch_size=config.BATCH_SIZE, shuffle=config.SHUFFLE,
                          validation_set=(val_x, val_y), snapshot_epoch=config.SNAPSHOT_EPOCH,
                          snapshot_step=config.SNAPSHOT_STEP, show_metric=config.SHOW_METRIC)
+        logger.info("[+] Training finished!")
 
     def test(self, test_x, test_y):
         # TODO: Add documentation for this method.
+        logger.info("[+] Starting testing...")
         return self.__model.evaluate(test_x, test_y)
+        logger.info("[+] Testing finished!")
 
     def predict_label(self, x):
         # TODO: Add documentation for this method.
