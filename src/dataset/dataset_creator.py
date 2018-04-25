@@ -28,13 +28,3 @@ class DatasetCreator:
         """
         # TODO: Implement dataset creation.
         return True
-
-    def __slice(self, object, size, overlap):
-        # TODO: Add documentation for this method.
-        # TODO: Implement song slicing.
-        return None
-
-    def __convert_to_spectrogram(self, waveform):
-        # TODO: Add documentation for this method.
-        # TODO: Implement conversion to spectrogram.
-        return None

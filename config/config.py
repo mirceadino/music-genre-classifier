@@ -1,0 +1,14 @@
+# Model
+NUM_CLASSES = 2
+IMAGE_SIZE = 128
+
+# Training
+NUM_EPOCHES = 10
+BATCH_SIZE = 128
+SHUFFLE = True
+SNAPSHOT_EPOCH = True
+SNAPSHOT_STEP = 100
+SHOW_METRIC = True
+
+# Classifier
+GENRES = []
