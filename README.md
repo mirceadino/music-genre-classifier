@@ -3,6 +3,8 @@
 
 ## TODO
 - [ ] Create virtual environement and write requirements.
-- [ ] Prepare structure of the dataset paths.
-- [ ] Write song processing and dataset creation.
-- [ ] ...
+- [x] Prepare structure of the dataset paths.
+- [x] Write song processing and dataset creation.
+- [ ] Fix the reversed label situation.
+- [ ] Collect more songs.
+- [ ] Extend classifier to more genres.
