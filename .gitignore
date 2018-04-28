@@ -1,6 +1,11 @@
 # .idea
 *.idea/*
 
+# datasets and model
+*model/*
+*raw_dataset/*
+*dataset/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
