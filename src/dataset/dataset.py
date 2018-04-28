@@ -1,7 +1,7 @@
 import logging
+import pickle
+import numpy as np
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 class Dataset:
     """Accessor for a dataset.
@@ -21,6 +21,8 @@ class Dataset:
         self.__name = name
         self.__path = path
         self.__is_loaded = False
+        self.__x = None
+        self.__y = None
 
     @property
     def name(self):
@@ -41,14 +43,20 @@ class Dataset:
         Returns:
             bool: True if the dataset was successfully loaded, False otherwise.
         """
-        logger.info("[+] Loading dataset \"{0}\"...".format(self.__name))
+        # TODO: Throw exception if loading fails instead of returning boolean.
+        logging.info("[+] Loading dataset \"{0}\"...".format(self.__name))
         if self.is_loaded:
-            logger.warning("[+] Dataset \"{0}\" was already loaded.".format(self.__name))
+            logging.warning("[+] Dataset \"{0}\" was already loaded.".format(self.__name))
             return False
 
-        # TODO: Implement loading.
+        with open(self.__path, "rb") as infile:
+            dataset = pickle.load(infile)
+            x, y = zip(*dataset)
+            self.__x = np.array(list(x)).reshape([-1, 128, 128, 1])
+            self.__y = np.array(list(y)).reshape([-1, 2])
+
         self.__is_loaded = True
-        logger.info("[+] Dataset \"{0}\" loaded!".format(self.__name))
+        logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))
         return self.__is_loaded
 
     def get(self):
@@ -60,5 +68,4 @@ class Dataset:
         if not self.is_loaded:
             self.load()
 
-        # TODO: Implement retrieval.
-        return None, None
+        return self.__x, self.__y
