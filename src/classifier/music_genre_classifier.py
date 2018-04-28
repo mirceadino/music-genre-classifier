@@ -46,7 +46,7 @@ class MusicGenreClassifier:
 
     def predict(self, song):
         # TODO: Add documentation for this method.
-        slices = song_to_spectrogram_slices(song, 128)
+        slices = song_to_spectrogram_slices(song, 128, 64)
 
         count_per_label = {None: 0}
         for label in self.__label_to_genre.keys():
