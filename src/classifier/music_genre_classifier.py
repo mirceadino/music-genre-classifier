@@ -1,3 +1,6 @@
+import numpy as np
+
+from config import config
 from src.utils.song_utils import song_to_spectrogram_slices
 
 
@@ -12,7 +15,7 @@ class MusicGenreClassifier:
     def __init__(self, nn, genres):
         # TODO: Add documentation for this method.
         self.__model = nn
-        self.__genres = genres
+        self.__genres = sorted(genres)
         self.__genre_to_label = {}
         self.__label_to_genre = {}
         self.__build_mapping()
@@ -36,17 +39,20 @@ class MusicGenreClassifier:
             return None
         return self.__genre_to_label[genre]
 
-    def y_to_label(self, y):
+    @staticmethod
+    def y_to_label(y):
         # TODO: Add documentation for this method.
         try:
-            label = y.index(1)
+            label = list(y).index(1)
             return label
         except ValueError:
             return None
 
-    def predict(self, song):
+    def predict(self, song, rate):
         # TODO: Add documentation for this method.
-        slices = song_to_spectrogram_slices(song, 128, 64)
+        slices = song_to_spectrogram_slices(song, rate, config.SLICE_SIZE,
+                                            config.SLICE_OVERLAP)
+        slices = np.array(slices).reshape([-1, 128, config.SLICE_SIZE, 1])
 
         count_per_label = {None: 0}
         for label in self.__label_to_genre.keys():
@@ -58,7 +64,7 @@ class MusicGenreClassifier:
             count_per_label[label] += 1
 
         count_per_genre = {}
-        for label, count in count_per_label:
+        for label, count in count_per_label.items():
             count_per_genre[self.label_to_genre(label)] = count
 
         return count_per_genre

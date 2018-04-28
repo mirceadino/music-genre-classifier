@@ -1,18 +1,19 @@
+# Classifier
+GENRES = sorted(["latino", "classical"])
+
 # Model
-NUM_CLASSES = 2
-IMAGE_SIZE = 128
+NUM_CLASSES = len(GENRES)
+SLICE_SIZE = 128
+SLICE_OVERLAP = 64
 PATH_MODEL = "model/model.tflearn"
 
 # Training
 NUM_EPOCHS = 10
 BATCH_SIZE = 128
-SHUFFLE = True
+SHUFFLE = False
 SNAPSHOT_EPOCH = True
 SNAPSHOT_STEP = 100
 SHOW_METRIC = True
-
-# Classifier
-GENRES = sorted(["electro", "classical"])
 
 # Dataset
 PATH_TRAINING_DATASET = "dataset/training"

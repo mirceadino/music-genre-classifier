@@ -2,6 +2,9 @@ import logging
 import pickle
 import numpy as np
 
+from config import config
+from src.dataset.statistics import DatasetStatistics
+
 
 class Dataset:
     """Accessor for a dataset.
@@ -52,7 +55,7 @@ class Dataset:
         with open(self.__path, "rb") as infile:
             dataset = pickle.load(infile)
             x, y = zip(*dataset)
-            self.__x = np.array(list(x)).reshape([-1, 128, 128, 1])
+            self.__x = np.array(list(x)).reshape([-1, 128, config.SLICE_SIZE, 1])
             self.__y = np.array(list(y)).reshape([-1, 2])
 
         self.__is_loaded = True
@@ -69,3 +72,17 @@ class Dataset:
             self.load()
 
         return self.__x, self.__y
+
+    def display_statistics(self, all_stats=False, num_slices=False, slices_per_genre=False):
+        stats = DatasetStatistics(self)
+        print("[+] Statistics for dataset \"{0}\":".format(self.__name))
+
+        if all_stats:
+            num_slices = True
+            slices_per_genre = True
+
+        if num_slices:
+            stats.num_slices()
+
+        if slices_per_genre:
+            stats.slices_per_genre()

@@ -16,25 +16,26 @@ class Song:
         waveform (numpy.array): Waveform of the song.
     """
 
-    def __init__(self, song_id, filename, title, audio_format, duration, labels, waveform):
-        # TODO: Remove unnecessary attributes: filename.
+    def __init__(self, song_id, filename, title, audio_format, duration, labels):
+        # TODO: Remove unnecessary attributes: filename, waveform.
         self.__id = song_id
         self.__filename = filename
         self.__title = title
         self.__format = audio_format
         self.__duration = duration
         self.__labels = labels
-        self.__waveform = waveform
+        self.__validate()
 
     @staticmethod
     def import_from_dictionary(dictionary):
-        song = Song(None, None, None, None, None, None, None)
+        song = Song(None, None, None, None, None, None)
         song.__id = dictionary["id"]
         song.__filename = dictionary["filename"]
         song.__title = dictionary["title"]
         song.__format = dictionary["audio_format"]
         song.__duration = dictionary["duration"]
         song.__labels = dictionary["labels"].split()
+        song.__validate()
         return song
 
     @property
@@ -61,10 +62,12 @@ class Song:
     def labels(self):
         return self.__labels
 
-    @property
-    def waveform(self):
-        return self.__waveform
-
     def get_y(self):
         y = [1 if genre in self.labels else 0 for genre in config.GENRES]
         return numpy.array(y)
+
+    def __validate(self):
+        if self.labels is not None:
+            for label in self.labels:
+                if label not in config.GENRES:
+                    raise ValueError("Label '{0}' is not present in {1}.".format(label, config.GENRES))

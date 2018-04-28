@@ -42,10 +42,12 @@ def train():
 
     train_dataset = Dataset(name="training",
                             path=config.PATH_TRAINING_DATASET)
+    train_dataset.display_statistics(all_stats=True)
     train_x, train_y = train_dataset.get()
 
     val_dataset = Dataset(name="validation",
                           path=config.PATH_VALIDATION_DATASET)
+    val_dataset.display_statistics(all_stats=True)
     val_x, val_y = val_dataset.get()
 
     nn = NeuralNetwork()
@@ -56,6 +58,7 @@ def train():
 
 def test():
     test_dataset = Dataset(name="testing", path=config.PATH_TESTING_DATASET)
+    test_dataset.display_statistics(all_stats=True)
     test_x, test_y = test_dataset.get()
 
     nn = NeuralNetwork()
@@ -70,7 +73,7 @@ def predict(path):
     nn.load(config.PATH_MODEL)
     classifier = MusicGenreClassifier(nn, config.GENRES)
     song, rate = read_song_from_wav(path)
-    print(classifier.predict(song))
+    print(classifier.predict(song, rate))
 
 
 def main():

@@ -2,6 +2,7 @@ import logging
 import pickle
 import random
 
+from config import config
 from src.utils.song_utils import read_songs_from_csv, read_song_from_wav, song_to_spectrogram_slices
 
 
@@ -41,7 +42,8 @@ class DatasetCreator:
         for song in all_songs:
             path = "".join([path_raw_songs, song.id, ".", song.audio_format])
             waveform, rate = read_song_from_wav(path)
-            slices = song_to_spectrogram_slices(waveform, rate, 128, 64)
+            slices = song_to_spectrogram_slices(waveform, rate,
+                                                config.SLICE_SIZE, config.SLICE_OVERLAP)
             slices_and_labels = list(map(lambda x: (x, song.get_y()), slices))
             dataset.extend(slices_and_labels)
 

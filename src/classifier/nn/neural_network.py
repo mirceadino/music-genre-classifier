@@ -12,7 +12,7 @@ class NeuralNetwork:
     # TODO: Add documentation for this class.
 
     def __init__(self):
-        self.__model = self.__create_model(config.NUM_CLASSES, config.IMAGE_SIZE)
+        self.__model = self.__create_model(config.NUM_CLASSES, config.SLICE_SIZE)
 
     def load(self, path):
         # TODO: Add documentation for this method.
@@ -47,11 +47,16 @@ class NeuralNetwork:
         # Note: x is list
         return self.__model.predict_label(x)
 
-    def __create_model(self, num_classes, image_size):
+    def predict_probabilities(self, x):
+        # TODO: Add documentation for this method.
+        # Note: x is list
+        return self.__model.predict(x)
+
+    def __create_model(self, num_classes, slice_size):
         # TODO: Add documentation for this class.
         logging.info("[+] Creating model...")
 
-        network = input_data(shape=[None, image_size, image_size, 1], name='input')
+        network = input_data(shape=[None, 128, slice_size, 1], name='input')
 
         network = conv_2d(network, 64, 2, activation='elu', weights_init="Xavier")
         network = max_pool_2d(network, 2)
@@ -64,6 +69,9 @@ class NeuralNetwork:
 
         network = conv_2d(network, 512, 2, activation='elu', weights_init="Xavier")
         network = max_pool_2d(network, 2)
+
+        network = fully_connected(network, 1024, activation='elu')
+        network = dropout(network, 0.5)
 
         network = fully_connected(network, 1024, activation='elu')
         network = dropout(network, 0.5)
