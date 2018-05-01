@@ -1,11 +1,11 @@
 # Classifier
-GENRES = sorted(["latino", "classical"])
+GENRES = sorted(["electro", "classical", "latino"])
 
 # Model
 NUM_CLASSES = len(GENRES)
 SLICE_SIZE = 128
 SLICE_OVERLAP = 64
-PATH_MODEL = "model/model.tflearn"
+PATH_MODEL = "model/model-03.tflearn"
 
 # Training
 NUM_EPOCHS = 10
@@ -16,9 +16,9 @@ SNAPSHOT_STEP = 100
 SHOW_METRIC = True
 
 # Dataset
-PATH_TRAINING_DATASET = "dataset/training"
-PATH_VALIDATION_DATASET = "dataset/validation"
-PATH_TESTING_DATASET = "dataset/testing"
+PATH_TRAINING_DATASET = "dataset/training-03"
+PATH_VALIDATION_DATASET = "dataset/validation-03"
+PATH_TESTING_DATASET = "dataset/testing-03"
 RATIO_VALIDATION = 0.3
 RATIO_TESTING = 0.1
 
