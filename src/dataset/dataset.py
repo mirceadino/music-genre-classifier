@@ -56,7 +56,7 @@ class Dataset:
             dataset = pickle.load(infile)
             x, y = zip(*dataset)
             self.__x = np.array(list(x)).reshape([-1, 128, config.SLICE_SIZE, 1])
-            self.__y = np.array(list(y)).reshape([-1, 2])
+            self.__y = np.array(list(y)).reshape([-1, len(config.GENRES)])
 
         self.__is_loaded = True
         logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))
