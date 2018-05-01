@@ -1,3 +1,5 @@
+import numpy as np
+
 from config import config
 from src.classifier.music_genre_classifier import MusicGenreClassifier
 
@@ -12,7 +14,7 @@ class DatasetStatistics:
 
     def slices_per_genre(self):
         classifier = MusicGenreClassifier(None, config.GENRES)
-        genres = list(map(lambda y: classifier.label_to_genre(MusicGenreClassifier.y_to_label(y)), self.__y))
+        genres = list(map(lambda y: classifier.label_to_genre(np.argsort(y)[0]), self.__y))
         genre_to_count = {}
         for genre in config.GENRES:
             genre_to_count[genre] = genres.count(genre)
