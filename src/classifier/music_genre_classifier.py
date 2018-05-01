@@ -39,15 +39,6 @@ class MusicGenreClassifier:
             return None
         return self.__genre_to_label[genre]
 
-    @staticmethod
-    def y_to_label(y):
-        # TODO: Add documentation for this method.
-        try:
-            label = list(y).index(1)
-            return label
-        except ValueError:
-            return None
-
     def predict(self, song, rate):
         # TODO: Add documentation for this method.
         slices = song_to_spectrogram_slices(song, rate, config.SLICE_SIZE,
@@ -60,7 +51,7 @@ class MusicGenreClassifier:
 
         predictions = self.__model.predict_label(slices)
         for prediction in predictions:
-            label = self.y_to_label(prediction)
+            label = prediction[0]
             count_per_label[label] += 1
 
         count_per_genre = {}
