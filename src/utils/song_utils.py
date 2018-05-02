@@ -30,6 +30,7 @@ def song_to_spectrogram_slices(song, rate, size, overlap=0):
 
 
 def read_songs_from_csv(path):
+    # TODO: Add documentation about the method.
     songs = []
     with open(path, "r") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -39,6 +40,7 @@ def read_songs_from_csv(path):
 
 
 def read_song_from_wav(path):
+    # TODO: Add documentation about the method.
     frames_per_sec, waveform = scipy.io.wavfile.read(path)
     try:
         waveform = waveform[:, 0]

@@ -8,18 +8,14 @@ class Song:
 
     Attributes:
         id (str): ID of the song.
-        filename (str): Path of the song.
         title (str): Title of the song.
         audio_format (str): Audio audio_format of the song (wav, mp3, etc.)
         duration (int): Duration of the song (in seconds).
         labels (list): List of labels for the song.
-        waveform (numpy.array): Waveform of the song.
     """
 
-    def __init__(self, song_id, filename, title, audio_format, duration, labels):
-        # TODO: Remove unnecessary attributes: filename, waveform.
+    def __init__(self, song_id, title, audio_format, duration, labels):
         self.__id = song_id
-        self.__filename = filename
         self.__title = title
         self.__format = audio_format
         self.__duration = duration
@@ -28,9 +24,16 @@ class Song:
 
     @staticmethod
     def import_from_dictionary(dictionary):
-        song = Song(None, None, None, None, None, None)
+        """Imports a song from a dictionary.
+
+        Args:
+            dictionary (dict): Dictionary of pairs of (attribute, value).
+
+        Returns:
+            Song: created song from the dictionary.
+        """
+        song = Song(None, None, None, None, None)
         song.__id = dictionary["id"]
-        song.__filename = dictionary["filename"]
         song.__title = dictionary["title"]
         song.__format = dictionary["audio_format"]
         song.__duration = dictionary["duration"]
@@ -41,10 +44,6 @@ class Song:
     @property
     def id(self):
         return self.__id
-
-    @property
-    def filename(self):
-        return self.__filename
 
     @property
     def title(self):
@@ -63,6 +62,18 @@ class Song:
         return self.__labels
 
     def get_y(self):
+        """Convert the labels to a binary array. The array will be of size
+        num_genres and will contain 1 on the positions where the genre
+        matches one of the labels and 0 otherwise.
+
+        Returns:
+            numpy.array: Binary array representing the labels.
+
+        Example:
+            If the genres are ["classical", "electro", "latino", "rock"] and the
+            labels of the current song are ["electro", "latino"], the output
+            will be [0, 1, 1, 0].
+        """
         y = [1 if genre in self.labels else 0 for genre in config.GENRES]
         return numpy.array(y)
 
@@ -70,4 +81,5 @@ class Song:
         if self.labels is not None:
             for label in self.labels:
                 if label not in config.GENRES:
-                    raise ValueError("Label '{0}' is not present in {1}.".format(label, config.GENRES))
+                    raise ValueError("Label '{0}' is not present in {1}."
+                                     .format(label, config.GENRES))

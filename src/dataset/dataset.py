@@ -10,6 +10,7 @@ class Dataset:
     """Accessor for a dataset.
 
     Attributes:
+        name (str): Name of the dataset.
         path (str): Path to the dataset.
         is_loaded (bool): Indicates whether the dataset was loaded or not.
     """
@@ -46,10 +47,11 @@ class Dataset:
         Returns:
             bool: True if the dataset was successfully loaded, False otherwise.
         """
-        # TODO: Throw exception if loading fails instead of returning boolean.
+        # TODO: Throw exception if loading fails instead of returning bool.
         logging.info("[+] Loading dataset \"{0}\"...".format(self.__name))
         if self.is_loaded:
-            logging.warning("[+] Dataset \"{0}\" was already loaded.".format(self.__name))
+            logging.warning("[+] Dataset \"{0}\" was already loaded."
+                            .format(self.__name))
             return False
 
         with open(self.__path, "rb") as infile:
@@ -73,7 +75,17 @@ class Dataset:
 
         return self.__x, self.__y
 
-    def display_statistics(self, all_stats=False, num_slices=False, slices_per_genre=False):
+    def display_statistics(self, all_stats=False, num_slices=False,
+                           slices_per_genre=False):
+        """Prints statistics about the dataset.
+
+        Args:
+            all_stats (bool): If True, ignore other arguments and prints all
+            the available statistics.
+            num_slices (bool): If True, prints the number of slices.
+            slices_per_genre (bool): If True, print how many slices there are
+            for each genre.
+        """
         stats = DatasetStatistics(self)
         print("[+] Statistics for dataset \"{0}\":".format(self.__name))
 

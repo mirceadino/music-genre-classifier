@@ -3,7 +3,8 @@ import pickle
 import random
 
 from config import config
-from src.utils.song_utils import read_songs_from_csv, read_song_from_wav, song_to_spectrogram_slices
+from src.utils.song_utils import read_songs_from_csv, read_song_from_wav, \
+    song_to_spectrogram_slices
 
 
 class DatasetCreator:
@@ -43,7 +44,8 @@ class DatasetCreator:
             path = "".join([path_raw_songs, song.id, ".", song.audio_format])
             waveform, rate = read_song_from_wav(path)
             slices = song_to_spectrogram_slices(waveform, rate,
-                                                config.SLICE_SIZE, config.SLICE_OVERLAP)
+                                                config.SLICE_SIZE,
+                                                config.SLICE_OVERLAP)
             slices_and_labels = list(map(lambda x: (x, song.get_y()), slices))
             dataset.extend(slices_and_labels)
 
@@ -60,15 +62,18 @@ class DatasetCreator:
 
         with open(path_training, "wb") as outfile:
             pickle.dump(training_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}".format(len(training_dataset), path_training))
+        logging.info("[+] {0} slices have been saved to: {1}"
+                     .format(len(training_dataset), path_training))
 
         with open(path_validation, "wb") as outfile:
             pickle.dump(validation_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}".format(len(validation_dataset), path_validation))
+        logging.info("[+] {0} slices have been saved to: {1}"
+                     .format(len(validation_dataset), path_validation))
 
         with open(path_testing, "wb") as outfile:
             pickle.dump(testing_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}".format(len(testing_dataset), path_testing))
+        logging.info("[+] {0} slices have been saved to: {1}"
+                     .format(len(testing_dataset), path_testing))
 
         logging.info("[+] Dataset saved!")
 
