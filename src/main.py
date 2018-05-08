@@ -13,15 +13,54 @@ logging.getLogger().setLevel(logging.INFO)
 
 def parse_args():
     # TODO: Add documentation.
-    parser = argparse.ArgumentParser(description="Music genre classifier tools.")
+    parser = argparse.ArgumentParser(
+        description="Music genre classifier tools.")
+
     parser.add_argument("-m", "--mode", type=str,
-                        help="<Required> Mode of the program",
                         choices=["create_dataset", "train", "test", "predict"],
-                        required=True)
+                        help="Mode of the program. On testing mode, "
+                             "by default, it tests only on the testing "
+                             "dataset, unless specified otherwise by the test "
+                             "parameter.")
+
+    parser.add_argument("-mc", "--create", action='store_true',
+                        help="Set mode to create_dataset. Doesn't override the "
+                             "mode parameter.")
+
+    parser.add_argument("-ml", "--train", action='store_true',
+                        help="Set mode to train. Doesn't override the mode "
+                             "parameter.")
+
+    parser.add_argument("-mt", "--test", action='append', default=["testing"],
+                        choices=["training", "validation", "testing"],
+                        help="Set mode to test and test on the named datasets. "
+                             "Doesn't override the mode parameter.")
+
+    parser.add_argument("-mp", "--predict", action='store_true',
+                        help="Set mode to predict. Doesn't override the mode "
+                             "parameter.")
+
     parser.add_argument("-p", "--path", type=str,
-                        help="Path to the song. Only considered in predict mode.")
+                        help="Path to the song. Only considered in predict "
+                             "mode.")
+
     args = parser.parse_args()
     print("Given arguments for the program: {0}".format(args))
+    return args
+
+
+def process_args(args):
+    # Refine the mode of the program.
+    if args.mode is None:
+        if args.create:
+            args.mode = "create_dataset"
+        elif args.train:
+            args.mode = "train"
+        elif len(args.test) > 0:
+            args.mode = "test"
+        elif args.predict:
+            args.mode = "predict"
+
     return args
 
 
@@ -56,16 +95,22 @@ def train():
     nn.save(config.PATH_MODEL)
 
 
-def test():
-    test_dataset = Dataset(name="testing", path=config.PATH_TESTING_DATASET)
-    test_dataset.display_statistics(all_stats=True)
-    test_x, test_y = test_dataset.get()
-
+def test(datasets):
     nn = NeuralNetwork()
     nn.load(config.PATH_MODEL)
 
-    accuracy = nn.test(test_x, test_y)
-    print("Obtained accuracy was: {0}.".format(accuracy))
+    path = {"training": config.PATH_TRAINING_DATASET,
+            "validation": config.PATH_VALIDATION_DATASET,
+            "testing": config.PATH_TESTING_DATASET}
+
+    for name in datasets:
+        test_dataset = Dataset(name=name, path=path[name])
+        test_dataset.display_statistics(all_stats=True)
+        test_x, test_y = test_dataset.get()
+
+        test_accuracy = nn.test(test_x, test_y)
+        print("Obtained accuracy for {0} dataset was: {1}.".format(
+            test_dataset.name, test_accuracy))
 
 
 def predict(path):
@@ -77,7 +122,7 @@ def predict(path):
 
 
 def main():
-    args = parse_args()
+    args = process_args(parse_args())
     mode = args.mode
 
     if mode == "create_dataset":
@@ -87,7 +132,7 @@ def main():
         train()
 
     elif mode == "test":
-        test()
+        test(args.test)
 
     elif mode == "predict":
         path = args.path
