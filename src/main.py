@@ -1,6 +1,8 @@
 import argparse
 import logging
 
+import subprocess
+
 from config import config
 from src.classifier.music_genre_classifier import MusicGenreClassifier
 from src.classifier.nn.neural_network import NeuralNetwork
@@ -42,7 +44,9 @@ def parse_args():
 
     parser.add_argument("-p", "--path", type=str,
                         help="Path to the song. Only considered in predict "
-                             "mode.")
+                             "mode. If the path is a Youtube url (contains "
+                             "'youtu' in the string), then it downloads the "
+                             "song")
 
     args = parser.parse_args()
     print("Given arguments for the program: {0}".format(args))
@@ -117,8 +121,19 @@ def predict(path):
     nn = NeuralNetwork()
     nn.load(config.PATH_MODEL)
     classifier = MusicGenreClassifier(nn, config.GENRES)
+    from_youtube = False
+    if "youtu" in path:
+        from_youtube = True
+        url = path
+        song_id = url.replace("/", " ").replace("=", " ").split()[-1]
+        subprocess.call("youtube-dl --extract-audio --audio-format {0} --output"
+                        " {1} --quiet {2}"
+                        .format("wav", "%(id)s.%(ext)s", url).split())
+        path = song_id + ".wav"
     song, rate = read_song_from_wav(path)
     print(classifier.predict(song, rate))
+    if from_youtube:
+        subprocess.call("rm {0}".format(path).split())
 
 
 def main():
