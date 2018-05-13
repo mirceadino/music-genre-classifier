@@ -31,7 +31,7 @@ def parse_args():
                         help="Set mode to train. Doesn't override the mode "
                              "parameter.")
 
-    parser.add_argument("-mt", "--test", action='append', default=["testing"],
+    parser.add_argument("-mt", "--test", action='append', default=[],
                         choices=["training", "validation", "testing"],
                         help="Set mode to test and test on the named datasets. "
                              "Doesn't override the mode parameter.")
