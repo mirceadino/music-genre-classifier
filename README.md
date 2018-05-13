@@ -1,6 +1,12 @@
 # music-genre-classifier
 :notes:
 
+## Refinements
+- [ ] On training mode, load the model (if one exists) and continue training on it.
+- [ ] On predicting mode, if the file doesn't exist, then consider it as an URL and download it. Also modularize that part.
+- [ ] Write a module for downloading songs, in batch from file or individually from url.
+- [ ] Consider better modularization of the code.
+
 ## TODO
 - [x] Run remotely with GPU and write requirements to make the code portable. __It's now running on AWS!__
 - [x] Prepare structure of the dataset paths.
