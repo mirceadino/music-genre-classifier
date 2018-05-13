@@ -2,7 +2,7 @@
 :notes:
 
 ## TODO
-- [ ] Create virtual environement and write requirements.
+- [x] Run remotely with GPU and write requirements to make the code portable. __It's now running on AWS!__
 - [x] Prepare structure of the dataset paths.
 - [x] Write song processing and dataset creation.
 - [x] Fix the reversed label bug.
