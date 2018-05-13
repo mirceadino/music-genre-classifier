@@ -5,14 +5,14 @@ GENRES = sorted(["electro", "classical", "latino"])
 NUM_CLASSES = len(GENRES)
 SLICE_SIZE = 128
 SLICE_OVERLAP = 64
-PATH_MODEL = "model/model-03.tflearn"
+PATH_MODEL = "model/model-04.tflearn"
 
 # Training
-NUM_EPOCHS = 10
+NUM_EPOCHS = 20
 BATCH_SIZE = 128
 SHUFFLE = False
 SNAPSHOT_EPOCH = True
-SNAPSHOT_STEP = 100
+SNAPSHOT_STEP = None
 SHOW_METRIC = True
 
 # Dataset

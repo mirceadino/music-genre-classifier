@@ -2,7 +2,7 @@ import logging
 
 import tflearn
 from tflearn.layers.conv import conv_2d, max_pool_2d
-from tflearn.layers.core import input_data, fully_connected
+from tflearn.layers.core import input_data, fully_connected, dropout
 from tflearn.layers.estimator import regression
 
 from config import config
@@ -128,13 +128,14 @@ class NeuralNetwork:
         network = max_pool_2d(network, 2)
 
         network = fully_connected(network, 1024, activation='elu')
-        #network = dropout(network, 0.5)
+        network = dropout(network, 0.5)
 
         network = fully_connected(network, 1024, activation='elu')
-        #network = dropout(network, 0.5)
+        network = dropout(network, 0.5)
 
         network = fully_connected(network, num_classes, activation='softmax')
-        network = regression(network, optimizer='sgd', loss='categorical_crossentropy')
+        network = regression(network, optimizer='sgd',
+                             loss='categorical_crossentropy')
 
         model = tflearn.DNN(network)
 
