@@ -2,6 +2,10 @@
 :notes:
 
 ## Refinements
+- [ ] Write an installation file:
+  * pip requirements
+  * brew/apt-get packages: ffmpeg
+  * something with the encoding from youtube-dl
 - [ ] On training mode, load the model (if one exists) and continue training on it.
 - [ ] On predicting mode, if the file doesn't exist, then consider it as an URL and download it. Also modularize that part.
 - [ ] Write a module for downloading songs, in batch from file or individually from url.
