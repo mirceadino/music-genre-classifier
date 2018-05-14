@@ -6,8 +6,8 @@
   * pip requirements
   * brew/apt-get packages: ffmpeg
   * something with the encoding from youtube-dl
-- [ ] On training mode, load the model (if one exists) and continue training on it.
-- [ ] On predicting mode, if the file doesn't exist then consider it as an URL or a Youtube video ID and download it. Also modularize that part.
+- [x] On training mode, load the model (if one exists) and continue training on it.
+- [x] On predicting mode, if the file doesn't exist then consider it as an URL or a Youtube video ID and download it. Also modularize that part.
 - [ ] Write a module for downloading songs, in batch from file or individually from url.
 - [ ] Add a re-download mode that downloads the songs from an existing info.csv. 
 - [ ] Consider better modularization of the code.
