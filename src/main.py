@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 
 import subprocess
 
@@ -123,21 +124,40 @@ def test(datasets):
             test_dataset.name, test_accuracy))
 
 
+def song_id(path):
+    return path.replace("/", " ").replace("=", " ").split()[-1]
+
+
+def get_youtube_url(path):
+    return "https://www.youtube.com/watch?v=" + song_id(path)
+
+
+def download_youtube_song(url):
+    subprocess.call("youtube-dl "
+                    "--extract-audio "
+                    "--quiet "
+                    "--audio-format {0} "
+                    "--output {1} "
+                    "{2}"
+                    .format("wav", "%(id)s.%(ext)s", url).split())
+    path = song_id(url) + ".wav"
+    return path
+
+
 def predict(path):
     nn = NeuralNetwork()
     nn.load(config.PATH_MODEL)
     classifier = MusicGenreClassifier(nn, config.GENRES)
+
     from_youtube = False
-    if "youtu" in path:
+    if not os.path.isfile(path):
         from_youtube = True
-        url = path
-        song_id = url.replace("/", " ").replace("=", " ").split()[-1]
-        subprocess.call("youtube-dl --extract-audio --audio-format {0} --output"
-                        " {1} --quiet {2}"
-                        .format("wav", "%(id)s.%(ext)s", url).split())
-        path = song_id + ".wav"
+        url = get_youtube_url(path)
+        path = download_youtube_song(url)
+
     song, rate = read_song_from_wav(path)
     print(classifier.predict(song, rate))
+
     if from_youtube:
         subprocess.call("rm {0}".format(path).split())
 
