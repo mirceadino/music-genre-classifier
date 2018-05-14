@@ -25,6 +25,10 @@ def parse_args():
                              "dataset, unless specified otherwise by the test "
                              "parameter.")
 
+    parser.add_argument("-r", "--resume", action='store_true',
+                        help="In training mode, load the model and continue "
+                             "training on it.")
+
     parser.add_argument("-mc", "--create", action='store_true',
                         help="Set mode to create_dataset. Doesn't override the "
                              "mode parameter.")
@@ -79,7 +83,7 @@ def create_dataset():
                    ratio_testing=config.RATIO_TESTING)
 
 
-def train():
+def train(load):
     logging.info("You're going to train the model on the existing dataset.")
     # TODO: Log information about the paths.
 
@@ -94,6 +98,8 @@ def train():
     val_x, val_y = val_dataset.get()
 
     nn = NeuralNetwork()
+    if load:
+        nn.load(config.PATH_MODEL)
     nn.train(train_x, train_y, val_x, val_y)
 
     nn.save(config.PATH_MODEL)
@@ -144,7 +150,7 @@ def main():
         create_dataset()
 
     elif mode == "train":
-        train()
+        train(args.resume)
 
     elif mode == "test":
         test(args.test)
