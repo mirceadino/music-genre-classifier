@@ -115,26 +115,28 @@ class NeuralNetwork:
 
         network = input_data(shape=[None, 128, slice_size, 1], name='input')
 
-        network = conv_2d(network, 64, 2, activation='elu', weights_init="Xavier")
-        network = max_pool_2d(network, 2)
+        network = conv_2d(network, nb_filter=64, filter_size=2,
+                          activation='elu', weights_init="Xavier")
+        network = max_pool_2d(network, kernel_size=2)
 
-        network = conv_2d(network, 128, 2, activation='elu', weights_init="Xavier")
-        network = max_pool_2d(network, 2)
+        network = conv_2d(network, nb_filter=128, filter_size=2,
+                          activation='elu', weights_init="Xavier")
+        network = max_pool_2d(network, kernel_size=2)
 
-        network = conv_2d(network, 256, 2, activation='elu', weights_init="Xavier")
-        network = max_pool_2d(network, 2)
+        network = conv_2d(network, nb_filter=256, filter_size=2,
+                          activation='elu', weights_init="Xavier")
+        network = max_pool_2d(network, kernel_size=2)
 
-        network = conv_2d(network, 512, 2, activation='elu', weights_init="Xavier")
-        network = max_pool_2d(network, 2)
+        network = conv_2d(network, nb_filter=512, filter_size=2,
+                          activation='elu', weights_init="Xavier")
+        network = max_pool_2d(network, kernel_size=2)
 
-        network = fully_connected(network, 1024, activation='elu')
-        network = dropout(network, 0.5)
+        network = fully_connected(network, n_units=1024, activation='elu')
+        network = dropout(network, keep_prob=0.5)
 
-        network = fully_connected(network, 1024, activation='elu')
-        network = dropout(network, 0.5)
-
-        network = fully_connected(network, num_classes, activation='softmax')
-        network = regression(network, optimizer='sgd',
+        network = fully_connected(network, n_units=num_classes,
+                                  activation='softmax')
+        network = regression(network, optimizer='rmsprop',
                              loss='categorical_crossentropy')
 
         model = tflearn.DNN(network)
