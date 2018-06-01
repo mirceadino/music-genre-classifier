@@ -1,9 +1,7 @@
 import logging
 import pickle
-import numpy as np
 
-from config import config
-from src.dataset.statistics import DatasetStatistics
+import numpy as np
 
 
 class Dataset:
@@ -15,15 +13,19 @@ class Dataset:
         is_loaded (bool): Indicates whether the dataset was loaded or not.
     """
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, x_shape, y_shape):
         """Creates a dataset accessor.
 
         Args:
             name (str): Name of the dataset.
             path (str): Path to the stored dataset.
+            x_shape (list): Shape of x. Example: [-1, 128, 128, 1].
+            y_shape (list): Shape of y. Example: [-1, 4].
         """
         self.__name = name
         self.__path = path
+        self.__x_shape = x_shape
+        self.__y_shape = y_shape
         self.__is_loaded = False
         self.__x = None
         self.__y = None
@@ -41,24 +43,24 @@ class Dataset:
         return self.__is_loaded
 
     def load(self):
-        """Loads the dataset. If dataset was previously loaded, it doesn't load
-        it again.
+        """Loads the dataset. If dataset was already loaded, it reloads it.
 
         Returns:
             bool: True if the dataset was successfully loaded, False otherwise.
         """
         # TODO: Throw exception if loading fails instead of returning bool.
         logging.info("[+] Loading dataset \"{0}\"...".format(self.__name))
-        if self.is_loaded:
-            logging.warning("[+] Dataset \"{0}\" was already loaded."
-                            .format(self.__name))
-            return False
+
+        self.__is_loaded = False
 
         with open(self.__path, "rb") as infile:
             dataset = pickle.load(infile)
             x, y = zip(*dataset)
-            self.__x = np.array(list(x)).reshape([-1, 128, config.SLICE_SIZE, 1])
-            self.__y = np.array(list(y)).reshape([-1, len(config.GENRES)])
+            self.__x = np.array(list(x)).reshape(self.__x_shape)
+            self.__y = np.array(list(y)).reshape(self.__y_shape)
+            # self.__x = np.array(list(x)).reshape([-1, 128,
+            # config.SLICE_SIZE, 1])
+            # self.__y = np.array(list(y)).reshape([-1, len(config.GENRES)])
 
         self.__is_loaded = True
         logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))
@@ -74,27 +76,3 @@ class Dataset:
             self.load()
 
         return self.__x, self.__y
-
-    def display_statistics(self, all_stats=False, num_slices=False,
-                           slices_per_genre=False):
-        """Prints statistics about the dataset.
-
-        Args:
-            all_stats (bool): If True, ignore other arguments and prints all
-            the available statistics.
-            num_slices (bool): If True, prints the number of slices.
-            slices_per_genre (bool): If True, print how many slices there are
-            for each genre.
-        """
-        stats = DatasetStatistics(self)
-        print("[+] Statistics for dataset \"{0}\":".format(self.__name))
-
-        if all_stats:
-            num_slices = True
-            slices_per_genre = True
-
-        if num_slices:
-            stats.num_slices()
-
-        if slices_per_genre:
-            stats.slices_per_genre()

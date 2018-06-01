@@ -8,7 +8,7 @@ SLICE_OVERLAP = 64
 PATH_MODEL = "model/model-04.tflearn"
 
 # Training
-NUM_EPOCHS = 20
+NUM_EPOCHS = 2
 BATCH_SIZE = 128
 SHUFFLE = False
 SNAPSHOT_EPOCH = True
@@ -24,4 +24,4 @@ RATIO_TESTING = 0.1
 
 # Songs
 PATH_SONGS = "raw_dataset/"
-PATH_SONG_INFO = "raw_dataset/info.csv"
+PATH_SONG_INFO = "raw_dataset/info_tiny.csv"

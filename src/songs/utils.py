@@ -3,7 +3,7 @@ import csv
 import librosa
 import scipy.io.wavfile
 
-from src.domain.song import Song
+from src.songs.song import Song
 
 
 def song_to_slices(song, size, overlap=0):
