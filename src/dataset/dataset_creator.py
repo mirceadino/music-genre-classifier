@@ -18,6 +18,8 @@ class DatasetCreator:
 
         if method_name == "raw_song_to_slices":
             self.__method = self.__raw_song_to_slices
+        elif method_name == "raw_song_to_27_slices":
+            self.__method = self.__raw_song_to_27_slices
 
         if self.__method is None:
             raise ValueError("Invalid method to convert raw song to data.")
@@ -106,4 +108,14 @@ class DatasetCreator:
     def __raw_song_to_slices(self, waveform, rate, slice_size, slice_overlap):
         slices = song_to_spectrogram_slices(waveform, rate, slice_size,
                                             slice_overlap)
+        return np.array(slices).reshape(self.__x_shape)
+
+    def __raw_song_to_27_slices(self, waveform, rate, slice_size,
+                                slice_overlap):
+        slices = song_to_spectrogram_slices(waveform, rate, slice_size,
+                                            slice_overlap)
+        original_slices = slices
+        while len(slices) < 27:
+            slices = slices.extend(original_slices)
+        slices = slices[:27]
         return np.array(slices).reshape(self.__x_shape)
