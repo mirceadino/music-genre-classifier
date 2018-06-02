@@ -15,7 +15,6 @@ class MusicGenreClassifier:
     def predict(self, song, rate):
         # TODO: Add documentation for this method.
         slices = self.__dataset_creator.song_to_x(song, rate)
-        # slices = np.array(slices).reshape([-1, 128, config.SLICE_SIZE, 1])
 
         count_per_label = {None: 0}
         for label in self.__genre_mapper.labels:
