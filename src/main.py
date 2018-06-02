@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import subprocess
+import tensorflow as tf
 
 from config import config
 from src.classifier.genre_mapper import GenreMapper
@@ -13,6 +14,7 @@ from src.nn.neural_network import NeuralNetwork
 from src.songs.utils import read_song_from_wav
 
 logging.getLogger().setLevel(logging.INFO)
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 def parse_args():
