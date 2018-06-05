@@ -25,8 +25,9 @@ def parse_args():
     parser.add_argument("--create", action='store_true',
                         help="Uses the program to create the dataset.")
 
-    parser.add_argument("--train", action='store_true',
-                        help="Uses to program to perform training.")
+    parser.add_argument("--train", type=int, default=-1,
+                        help="Uses to program to perform training for the "
+                             "specified number of epochs.")
 
     parser.add_argument("--resume", action='store_true',
                         help="In training mode, load the model and continue "
@@ -52,7 +53,7 @@ def process_args(args):
     # Refine the mode of the program.
     if args.create:
         args.mode = "create_dataset"
-    elif args.train:
+    elif args.train > 0:
         args.mode = "train"
     elif len(args.test) > 0:
         args.mode = "test"
@@ -72,7 +73,7 @@ def create_dataset(genre_mapper, creator):
                            ratio_testing=config.RATIO_TESTING)
 
 
-def train(load, genre_mapper, x_shape, y_shape):
+def train(num_epochs, load, genre_mapper, x_shape, y_shape):
     logging.info("You're going to train the model on the existing dataset.")
     # TODO: Log information about the paths.
 
@@ -95,7 +96,7 @@ def train(load, genre_mapper, x_shape, y_shape):
                        num_classes=len(config.GENRES))
     if load:
         nn.load(config.PATH_MODEL)
-    nn.train(train_x, train_y, val_x, val_y, num_epochs=config.NUM_EPOCHS,
+    nn.train(train_x, train_y, val_x, val_y, num_epochs=num_epochs,
              batch_size=config.BATCH_SIZE, shuffle=config.SHUFFLE,
              snapshot_epoch=config.SNAPSHOT_EPOCH,
              snapshot_step=config.SNAPSHOT_STEP, show_metric=config.SHOW_METRIC)
@@ -186,7 +187,7 @@ def main():
         create_dataset(genre_mapper, dataset_creator)
 
     elif mode == "train":
-        train(args.resume, genre_mapper, x_shape, y_shape)
+        train(args.train, args.resume, genre_mapper, x_shape, y_shape)
 
     elif mode == "test":
         test(args.test, genre_mapper, x_shape, y_shape)
