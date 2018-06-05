@@ -116,6 +116,7 @@ def test(datasets, genre_mapper, x_shape, y_shape):
             "testing": config.PATH_TESTING_DATASET}
 
     for name in datasets:
+        print("------")
         test_dataset = Dataset(name=name, path=path[name],
                                x_shape=x_shape, y_shape=y_shape)
         test_stats = DatasetStatistics(test_dataset, genre_mapper)
@@ -130,7 +131,6 @@ def test(datasets, genre_mapper, x_shape, y_shape):
         y_pred = list(map(lambda labels: genre_mapper.label_to_y(labels[0]),
                           label_pred))
         test_stats.confusion_matrix(y_pred)
-        print("------")
 
 
 def song_id(path):
