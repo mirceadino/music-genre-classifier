@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 
 class DatasetStatistics:
@@ -28,6 +29,25 @@ class DatasetStatistics:
         genre_to_percentage = {}
         for genre in mapper.genres:
             genre_to_percentage[genre] = genre_to_count[genre] / len(self.__y)
-        print("[+] Frequency (count) of each genre: {0}".format(genre_to_count))
-        print("[+] Frequency (percentage) of each genre: {0}".format(genre_to_percentage))
+        print("[+] Frequency (count) of each genre:")
+        print(pd.Series(genre_to_count).to_string())
+        print("[+] Frequency (percentage) of each genre:")
+        print(pd.Series(genre_to_percentage).to_string())
+
+    def confusion_matrix(self, y_pred):
+        matrix = {}
+        for expected_genre in self.__genre_mapper.genres:
+            matrix[expected_genre] = {}
+            for predicted_genre in self.__genre_mapper.genres:
+                matrix[expected_genre][predicted_genre] = 0
+
+        for i in range(len(self.__y)):
+            expected_y = self.__y[i]
+            predicted_y = y_pred[i]
+            expected_genre = self.__genre_mapper.y_to_genre(expected_y)
+            predicted_genre = self.__genre_mapper.y_to_genre(predicted_y)
+            matrix[expected_genre][predicted_genre] += 1
+
+        print("[+] Confusion matrix:")
+        print(pd.DataFrame(matrix).to_string(na_rep='-'))
 

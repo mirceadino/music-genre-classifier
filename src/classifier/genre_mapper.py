@@ -35,6 +35,21 @@ class GenreMapper:
             return None
         return self.__genre_to_label[genre]
 
+    def label_to_y(self, label):
+        # TODO: Add documentation for this method.
+        return [0 if label != i else 1 for i in self.labels]
+
     def genre_to_y(self, genre):
+        # TODO: Add documentation for this method.
         label = self.genre_to_label(genre)
         return [0 if label != i else 1 for i in self.labels]
+
+    def y_to_genre(self, y):
+        # TODO: Add documentation for this method.
+        label = list(y).index(1)
+        return self.label_to_genre(label)
+
+    def y_to_label(self, y):
+        # TODO: Add documentation for this method.
+        label = list(y).index(1)
+        return label
