@@ -130,6 +130,7 @@ def test(datasets, genre_mapper, x_shape, y_shape):
         y_pred = list(map(lambda labels: genre_mapper.label_to_y(labels[0]),
                           label_pred))
         test_stats.confusion_matrix(y_pred)
+        print("------")
 
 
 def song_id(path):

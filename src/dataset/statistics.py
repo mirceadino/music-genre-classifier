@@ -17,7 +17,7 @@ class DatasetStatistics:
 
     def num_slices(self):
         # TODO: Add documentation about the method.
-        print("[+] Number of slices: {0}".format(len(self.__x)))
+        print("Total number of slices: {0}".format(len(self.__x)))
 
     def slices_per_genre(self):
         # TODO: Add documentation about the method.
@@ -36,12 +36,12 @@ class DatasetStatistics:
             matrix[genre] = {'count': genre_to_count[genre], 'percent': \
                 str(round(genre_to_percentage[genre], 4))}
 
-        print("[+] Frequency of each genre:")
+        print("Frequency of each genre:")
         print(pd.DataFrame(matrix).to_string())
         """
-        print("[+] Frequency (count) of each genre:")
+        print("Frequency (count) of each genre:")
         print(pd.Series(genre_to_count).to_string())
-        print("[+] Frequency (percentage) of each genre:")
+        print("Frequency (percentage) of each genre:")
         print(pd.Series(genre_to_percentage).to_string())
         """
 
@@ -59,5 +59,5 @@ class DatasetStatistics:
             predicted_genre = self.__genre_mapper.y_to_genre(predicted_y)
             matrix[expected_genre][predicted_genre] += 1
 
-        print("[+] Confusion matrix:")
+        print("Confusion matrix:")
         print(pd.DataFrame(matrix).to_string(na_rep='-'))
