@@ -26,7 +26,7 @@ class DatasetCreator:
 
     def create_dataset(self, path_raw_songs, path_raw_info, path_training,
                        path_validation, path_testing, ratio_validation,
-                       ratio_testing):
+                       ratio_testing, equalize):
         """Converts raw data to data that can be fed to the neural network.
 
         Methods:
@@ -49,6 +49,10 @@ class DatasetCreator:
                 dataset. Must be between 0 and 1.
             ratio_testing (double): Ratio of the size of the testing dataset.
                 Must be between 0 and 1.
+            equalize (bool): Whether to equalize the dataset or not such that
+                is the same number of samples for each label. This is done by
+                resizing each category to the minimum positive number of
+                samples.
 
         Returns:
             bool: True if successful. False otherwise.
@@ -72,12 +76,16 @@ class DatasetCreator:
 
         logging.info("[+] Saving dataset...")
 
-        random.shuffle(dataset)
-        i = int(len(dataset) * (1.0 - ratio_validation - ratio_testing))
-        j = int(len(dataset) * (1.0 - ratio_testing))
-        training_dataset = dataset[:i]
-        validation_dataset = dataset[i:j]
-        testing_dataset = dataset[j:]
+        if equalize:
+            training_dataset, validation_dataset, testing_dataset = \
+                self.__equalize(dataset, ratio_validation, ratio_testing)
+        else:
+            random.shuffle(dataset)
+            i = int(len(dataset) * (1.0 - ratio_validation - ratio_testing))
+            j = int(len(dataset) * (1.0 - ratio_testing))
+            training_dataset = dataset[:i]
+            validation_dataset = dataset[i:j]
+            testing_dataset = dataset[j:]
 
         with open(path_training, "wb") as outfile:
             pickle.dump(training_dataset, outfile)
@@ -104,6 +112,29 @@ class DatasetCreator:
     def add_label(self, slices, song):
         label = self.__genre_mapper.genre_to_y(song.genre)
         return list(map(lambda x: (x, label), slices))
+
+    def __equalize(self, dataset, ratio_validation, ratio_testing):
+        x_per_y = {}
+        for x, y in dataset:
+            if str(y) in x_per_y.keys():
+                x_per_y[str(y)].append((x, y))
+            else:
+                x_per_y[str(y)] = [(x, y)]
+        min_num_samples = len(dataset)
+        for y in x_per_y.keys():
+            min_num_samples = min(min_num_samples, len(x_per_y[y]))
+        training_samples = []
+        validation_samples = []
+        testing_samples = []
+        i = int(min_num_samples * (1.0 - ratio_validation - ratio_testing))
+        j = int(min_num_samples * (1.0 - ratio_testing))
+        for y in x_per_y.keys():
+            random.shuffle(x_per_y[y])
+            samples = x_per_y[y][:min_num_samples]
+            training_samples.extend(samples[:i])
+            validation_samples.extend(samples[i:j])
+            testing_samples.extend(samples[j:])
+        return training_samples, validation_samples, testing_samples
 
     def __raw_song_to_slices(self, waveform, rate, slice_size, slice_overlap):
         slices = song_to_spectrogram_slices(waveform, rate, slice_size,

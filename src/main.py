@@ -70,7 +70,7 @@ def create_dataset(genre_mapper, creator):
                            path_validation=config.PATH_VALIDATION_DATASET,
                            path_testing=config.PATH_TESTING_DATASET,
                            ratio_validation=config.RATIO_VALIDATION,
-                           ratio_testing=config.RATIO_TESTING)
+                           ratio_testing=config.RATIO_TESTING, equalize=True)
 
 
 def train(num_epochs, load, genre_mapper, x_shape, y_shape):
