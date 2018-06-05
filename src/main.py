@@ -15,6 +15,7 @@ from src.songs.utils import read_song_from_wav
 
 logging.getLogger().setLevel(logging.INFO)
 tf.logging.set_verbosity(tf.logging.ERROR)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 def parse_args():
