@@ -22,17 +22,28 @@ class DatasetStatistics:
     def slices_per_genre(self):
         # TODO: Add documentation about the method.
         mapper = self.__genre_mapper
-        genres = list(map(lambda y: mapper.label_to_genre(np.argsort(y)[-1]), self.__y))
+        genres = list(
+            map(lambda y: mapper.label_to_genre(np.argsort(y)[-1]), self.__y))
         genre_to_count = {}
         for genre in mapper.genres:
             genre_to_count[genre] = genres.count(genre)
         genre_to_percentage = {}
         for genre in mapper.genres:
             genre_to_percentage[genre] = genre_to_count[genre] / len(self.__y)
+
+        matrix = {}
+        for genre in mapper.genres:
+            matrix[genre] = {'count': genre_to_count[genre], 'percent': \
+                str(round(genre_to_percentage[genre], 4))}
+
+        print("[+] Frequency of each genre:")
+        print(pd.DataFrame(matrix).to_string())
+        """
         print("[+] Frequency (count) of each genre:")
         print(pd.Series(genre_to_count).to_string())
         print("[+] Frequency (percentage) of each genre:")
         print(pd.Series(genre_to_percentage).to_string())
+        """
 
     def confusion_matrix(self, y_pred):
         matrix = {}
@@ -50,4 +61,3 @@ class DatasetStatistics:
 
         print("[+] Confusion matrix:")
         print(pd.DataFrame(matrix).to_string(na_rep='-'))
-
