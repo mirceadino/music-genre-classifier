@@ -3,7 +3,7 @@
 
 # datasets and model
 *model/*
-*raw_dataset/*
+*raw_dataset*/*
 *dataset/*
 
 # Byte-compiled / optimized / DLL files
