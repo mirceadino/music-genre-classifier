@@ -66,6 +66,8 @@ class DatasetCreator:
         all_songs = read_songs_from_csv(path_raw_info)
         dataset = []
         for song in all_songs:
+            if song.genre not in self.__genre_mapper.genres:
+                continue
             path = "".join([path_raw_songs, song.id, ".", song.audio_format])
             waveform, rate = read_song_from_wav(path)
             slices = method(waveform, rate, **kwargs)
