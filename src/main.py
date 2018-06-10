@@ -128,10 +128,13 @@ def test(datasets, genre_mapper, x_shape, y_shape):
             test_dataset.name, test_accuracy))
 
         y_pred = []
-        for x in test_x:
-            x = x.reshape(x_shape)
+        for i in range(0, len(test_x), config.BATCH_SIZE):
+            j = min(len(test_x), i + config.BATCH_SIZE)
+            x = test_x[i:j]
             label_pred = nn.predict_label(x)
-            y_pred.append(genre_mapper.label_to_y(label_pred))
+            y_pred.extend(
+                list(map(lambda labels: genre_mapper.label_to_y(labels[0]),
+                         label_pred)))
         test_stats.confusion_matrix(y_pred)
 
 
