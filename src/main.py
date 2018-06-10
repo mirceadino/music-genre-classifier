@@ -127,9 +127,10 @@ def test(datasets, genre_mapper, x_shape, y_shape):
         print("Obtained accuracy for {0} dataset was: {1}.".format(
             test_dataset.name, test_accuracy))
 
-        label_pred = nn.predict_label(test_x)
-        y_pred = list(map(lambda labels: genre_mapper.label_to_y(labels[0]),
-                          label_pred))
+        y_pred = []
+        for x in test_x:
+            label_pred = nn.predict_label(x)
+            y_pred.append(genre_mapper.label_to_y(label_pred))
         test_stats.confusion_matrix(y_pred)
 
 
