@@ -17,7 +17,7 @@ class NeuralNetwork:
             path (str): Path to the file where the model is stored.
         """
         logging.info("[+] Loading model...")
-        self.__model.load(path)
+        self.__model.load(path, weights_only=True)
         logging.info("[+] Loading finished!")
 
     def save(self, path):
