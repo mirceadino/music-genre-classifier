@@ -26,6 +26,11 @@ def parse_args():
     parser.add_argument("--create", action='store_true',
                         help="Uses the program to create the dataset.")
 
+    parser.add_argument("--no_equalize", action='store_true',
+                        help="Whether to equalize or not the dataset, "
+                             "which means to that all the classes will have "
+                             "data of the same size.")
+
     parser.add_argument("--train", type=int, default=-1,
                         help="Uses to program to perform training for the "
                              "specified number of epochs.")
@@ -61,20 +66,25 @@ def process_args(args):
     elif args.predict:
         args.mode = "predict"
 
+    args.equalize = True
+    if args.no_equalize:
+        args.equalize = False
+
     return args
 
 
-def create_dataset(genre_mapper, creator):
+def create_dataset(creator, equalize):
     creator.create_dataset(path_raw_songs=config.PATH_SONGS,
                            path_raw_info=config.PATH_SONG_INFO,
                            path_training=config.PATH_TRAINING_DATASET,
                            path_validation=config.PATH_VALIDATION_DATASET,
                            path_testing=config.PATH_TESTING_DATASET,
                            ratio_validation=config.RATIO_VALIDATION,
-                           ratio_testing=config.RATIO_TESTING, equalize=True)
+                           ratio_testing=config.RATIO_TESTING,
+                           equalize=equalize)
 
 
-def train(num_epochs, load, genre_mapper, x_shape, y_shape):
+def train(nn, genre_mapper, num_epochs, x_shape, y_shape):
     logging.info("You're going to train the model on the existing dataset.")
     # TODO: Log information about the paths.
 
@@ -92,11 +102,6 @@ def train(num_epochs, load, genre_mapper, x_shape, y_shape):
     val_stats.all()
     val_x, val_y = val_dataset.get()
 
-    nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_SIZE,
-                       num_cols=config.SLICE_SIZE,
-                       num_classes=len(config.GENRES))
-    if load:
-        nn.load(config.PATH_MODEL)
     nn.train(train_x, train_y, val_x, val_y, num_epochs=num_epochs,
              batch_size=config.BATCH_SIZE, shuffle=config.SHUFFLE,
              snapshot_epoch=config.SNAPSHOT_EPOCH,
@@ -105,12 +110,7 @@ def train(num_epochs, load, genre_mapper, x_shape, y_shape):
     nn.save(config.PATH_MODEL)
 
 
-def test(datasets, genre_mapper, x_shape, y_shape):
-    nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_SIZE,
-                       num_cols=config.SLICE_SIZE,
-                       num_classes=len(config.GENRES))
-    nn.load(config.PATH_MODEL)
-
+def test(nn, genre_mapper, datasets, x_shape, y_shape):
     path = {"training": config.PATH_TRAINING_DATASET,
             "validation": config.PATH_VALIDATION_DATASET,
             "testing": config.PATH_TESTING_DATASET}
@@ -158,10 +158,7 @@ def download_youtube_song(url):
     return path
 
 
-def predict(path, genre_mapper, dataset_creator):
-    nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_SIZE,
-                       num_cols=config.SLICE_SIZE,
-                       num_classes=len(config.GENRES))
+def predict(nn, genre_mapper, dataset_creator, path):
     nn.load(config.PATH_MODEL)
     classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
 
@@ -190,17 +187,25 @@ def main():
                                      slice_size=config.SLICE_SIZE,
                                      slice_overlap=config.SLICE_OVERLAP)
 
+    nn = None
+    if mode != "create_dataset":
+        nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_SIZE,
+                           num_cols=config.SLICE_SIZE,
+                           num_classes=len(config.GENRES))
+        if mode != "train" or args.resume:
+            nn.load(config.PATH_MODEL)
+
     if mode == "create_dataset":
-        create_dataset(genre_mapper, dataset_creator)
+        create_dataset(dataset_creator, args.equalize)
 
     elif mode == "train":
-        train(args.train, args.resume, genre_mapper, x_shape, y_shape)
+        train(nn, genre_mapper, args.train, x_shape, y_shape)
 
     elif mode == "test":
-        test(args.test, genre_mapper, x_shape, y_shape)
+        test(nn, genre_mapper, args.test, x_shape, y_shape)
 
     elif mode == "predict":
-        predict(args.predict, genre_mapper, dataset_creator)
+        predict(nn, genre_mapper, dataset_creator, args.predict)
 
 
 if __name__ == "__main__":
