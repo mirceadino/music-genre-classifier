@@ -1,7 +1,7 @@
 # Classifier
-#GENRES = sorted(["electro", "classical", "latino"])
+GENRES = sorted(["electro", "classical", "latino"])
 #GENRES = sorted(["blues", "classical", "country", "disco", "hiphop", "jazz", "metal", "pop", "reggae", "rock"])
-GENRES = sorted(["classical", "disco", "hiphop", "jazz", "rock"])
+#GENRES = sorted(["classical", "disco", "hiphop", "jazz", "rock"])
 
 # Model
 NUM_CLASSES = len(GENRES)
@@ -24,5 +24,5 @@ RATIO_VALIDATION = 0.27
 RATIO_TESTING = 0.1
 
 # Songs
-PATH_SONGS = "raw_dataset-genres/"
-PATH_SONG_INFO = "raw_dataset-genres/info.csv"
+PATH_SONGS = "raw_dataset/"
+PATH_SONG_INFO = "raw_dataset/info.csv"
