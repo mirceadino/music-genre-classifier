@@ -23,32 +23,34 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Music genre classifier tools.")
 
-    parser.add_argument("--create", action='store_true',
-                        help="Uses the program to create the dataset.")
-
+    mutually_exclusive = parser.add_mutually_exclusive_group()
+    mutually_exclusive.add_argument("--create", action='store_true',
+                                    help="Uses the program to create the "
+                                         "dataset.")
     parser.add_argument("--no_equalize", action='store_true',
-                        help="Whether to equalize or not the dataset, "
-                             "which means to that all the classes will have "
-                             "data of the same size.")
+                        help="Used with --create. Whether to equalize or not "
+                             "the dataset, which means to that all the "
+                             "classes will have data of the same size.")
 
-    parser.add_argument("--train", type=int, default=-1,
-                        help="Uses to program to perform training for the "
-                             "specified number of epochs.")
-
+    mutually_exclusive.add_argument("--train", type=int, default=-1,
+                                    help="Uses to program to perform training "
+                                         "for the specified number of epochs.")
     parser.add_argument("--resume", action='store_true',
-                        help="In training mode, load the model and continue "
+                        help="Used with --train. Load the model and continue "
                              "training on it.")
 
-    parser.add_argument("--test", action='append', default=[],
-                        choices=["training", "validation", "testing"],
-                        help="Uses the program to test on the selected "
-                             "datasets.")
+    mutually_exclusive.add_argument("--test", action='append', default=[],
+                                    choices=["training", "validation",
+                                             "testing"],
+                                    help="Uses the program to test on the "
+                                         "selected datasets.")
 
-    parser.add_argument("--predict", type=str,
-                        help="Uses the program to predict. It is followed by "
-                             "the path to the song. Path to the song. If the "
-                             "path is a Youtube url (contains 'youtu' in the "
-                             "string), then it downloads the song")
+    mutually_exclusive.add_argument("--predict", type=str,
+                                    help="Uses the program to predict. It is "
+                                         "followed by the path to the song. "
+                                         "If the path is a Youtube url ("
+                                         "contains 'youtu' in the string), "
+                                         "then it downloads the song")
 
     args = parser.parse_args()
     print("Given arguments for the program: {0}".format(args))
