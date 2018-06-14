@@ -10,7 +10,7 @@ SLICE_OVERLAP = 64
 PATH_MODEL = "model/model-cnn-02.tflearn"
 
 # Training
-BATCH_SIZE = 128
+BATCH_SIZE = 16
 SHUFFLE = True 
 SNAPSHOT_EPOCH = True
 SNAPSHOT_STEP = None
@@ -25,4 +25,4 @@ RATIO_TESTING = 0.1
 
 # Songs
 PATH_SONGS = "raw_dataset/"
-PATH_SONG_INFO = "raw_dataset/info.csv"
+PATH_SONG_INFO = "raw_dataset/info_tiny.csv"

@@ -105,23 +105,25 @@ class ModelFactory:
                                    [128, 2, 1, 'same', 'elu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
 
-        """
         network = time_distributed(network, conv_2d,
                                    [256, 2, 1, 'same', 'elu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
 
+        """
         network = time_distributed(network, conv_2d,
                                    [512, 2, 1, 'same', 'elu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
         """
 
-        network = time_distributed(network, fully_connected, [1024, 'elu'])
+        network = time_distributed(network, fully_connected, [512, 'elu'])
         network = time_distributed(network, dropout, [0.5])
 
         network = time_distributed(network, fully_connected,
                                    [num_classes, 'softmax'])
 
-        network = lstm(network, n_units=32, dropout=0.8)
+        # network = lstm(network, n_units=16, dropout=0.8)
+        network = fully_connected(network, n_units=16, activation='elu')
+        network = dropout(network, 0.8)
 
         network = fully_connected(network, n_units=num_classes,
                                   activation='softmax')
