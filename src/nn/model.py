@@ -121,9 +121,7 @@ class ModelFactory:
         network = time_distributed(network, fully_connected,
                                    [num_classes, 'softmax'])
 
-        #network = lstm(network, n_units=64, dropout=0.5)
-        network = fully_connected(network, n_units=64,
-                                  activation='elu')
+        network = lstm(network, n_units=64, dropout=0.8)
 
         network = fully_connected(network, n_units=num_classes,
                                   activation='softmax')
