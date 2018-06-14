@@ -121,11 +121,11 @@ class ModelFactory:
         network = time_distributed(network, fully_connected,
                                    [num_classes, 'softmax'])
 
-        network = lstm(network, n_units=64, dropout=0.8)
+        network = lstm(network, n_units=32, dropout=0.8)
 
         network = fully_connected(network, n_units=num_classes,
                                   activation='softmax')
-        network = regression(network, optimizer='rmsprop',
+        network = regression(network, optimizer='adam', learning_rate=0.001,
                              loss='categorical_crossentropy')
 
         model = tflearn.DNN(network)
