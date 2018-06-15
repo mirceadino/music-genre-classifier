@@ -181,18 +181,18 @@ def main():
     args = process_args(parse_args())
     mode = args.mode
 
-    x_shape = [-1, config.SLICE_SIZE, config.SLICE_SIZE, 1]
+    x_shape = [-1, config.SLICE_HEIGHT, config.SLICE_WIDTH, 1]
     y_shape = [-1, len(config.GENRES)]
     genre_mapper = GenreMapper(config.GENRES)
     dataset_creator = DatasetCreator("raw_song_to_slices", genre_mapper,
                                      x_shape, y_shape,
-                                     slice_size=config.SLICE_SIZE,
+                                     slice_size=config.SLICE_WIDTH,
                                      slice_overlap=config.SLICE_OVERLAP)
 
     nn = None
     if mode != "create_dataset":
-        nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_SIZE,
-                           num_cols=config.SLICE_SIZE,
+        nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_HEIGHT,
+                           num_cols=config.SLICE_WIDTH,
                            num_classes=len(config.GENRES))
         if mode != "train" or args.resume:
             nn.load(config.PATH_MODEL)
