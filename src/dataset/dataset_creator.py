@@ -9,12 +9,11 @@ from src.songs.utils import read_songs_from_csv, read_song_from_wav, \
 
 
 class DatasetCreator:
-    def __init__(self, genre_mapper, x_shape, y_shape, slice_size,
-                 slice_overlap):
+    def __init__(self, genre_mapper, slice_height, slice_width, slice_overlap):
         self.__genre_mapper = genre_mapper
-        self.__x_shape = x_shape
-        self.__y_shape = y_shape
-        self.__slice_size = slice_size
+        self.__x_shape = [-1, slice_height, slice_width, 1]
+        self.__y_shape = [-1, len(genre_mapper.genres)]
+        self.__slice_width = slice_width
         self.__slice_overlap = slice_overlap
 
     def create_dataset(self, path_raw_songs, path_raw_info, path_training,
@@ -27,7 +26,7 @@ class DatasetCreator:
                 All the resulting slices will be x with the song label as y.
 
                 Method args:
-                    slice_size (int): Size of the slice.
+                    slice_width (int): Size of the slice.
                     slice_overlap (int): Overlap of the slices.
                     genre_mapper (GenreMapper): Mapper to be used.
 
@@ -99,7 +98,7 @@ class DatasetCreator:
         return True
 
     def song_to_slices(self, waveform, rate):
-        return song_to_spectrogram_slices(waveform, rate, self.__slice_size,
+        return song_to_spectrogram_slices(waveform, rate, self.__slice_width,
                                           self.__slice_overlap)
 
     def slices_to_x(self, slices):
@@ -108,9 +107,11 @@ class DatasetCreator:
     def song_to_x(self, waveform, rate):
         return self.slices_to_x(self.song_to_slices(waveform, rate))
 
-    def add_label(self, slices, song):
-        label = self.__genre_mapper.genre_to_y(song.genre)
-        return list(map(lambda x: (x, label), slices))
+    def reshape_x(self, x):
+        return np.array(list(x)).reshape(self.__x_shape)
+
+    def reshape_y(self, y):
+        return np.array(list(y)).reshape(self.__y_shape)
 
     def __equalize(self, dataset, ratio_validation, ratio_testing):
         x_per_y = {}

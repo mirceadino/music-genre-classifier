@@ -1,14 +1,14 @@
 import logging
 
-from src.nn.model import ModelFactory
+from src.nn.model import cnn_for_slices
 
 
 class NeuralNetwork:
     """Neural network that allows loading, saving, training, testing and
     predicting."""
 
-    def __init__(self, model_name, **kwargs):
-        self.__model = ModelFactory.get(model_name, **kwargs)
+    def __init__(self, **kwargs):
+        self.__model = cnn_for_slices(**kwargs)
 
     def load(self, path):
         """Loads model from file.

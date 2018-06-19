@@ -1,8 +1,6 @@
 import logging
 import pickle
 
-import numpy as np
-
 
 class Dataset:
     """Accessor for a dataset.
@@ -13,7 +11,7 @@ class Dataset:
         is_loaded (bool): Indicates whether the dataset was loaded or not.
     """
 
-    def __init__(self, name, path, x_shape, y_shape):
+    def __init__(self, name, path, dataset_creator):
         """Creates a dataset accessor.
 
         Args:
@@ -24,8 +22,7 @@ class Dataset:
         """
         self.__name = name
         self.__path = path
-        self.__x_shape = x_shape
-        self.__y_shape = y_shape
+        self.__dataset_creator = dataset_creator
         self.__is_loaded = False
         self.__x = None
         self.__y = None
@@ -60,10 +57,15 @@ class Dataset:
                 for slices, label in dataset:
                     for slice in slices:
                         extended_dataset.append((slice, label))
-                dataset = extended_dataset
-            x, y = zip(*dataset)
-            self.__x = np.array(list(x)).reshape(self.__x_shape)
-            self.__y = np.array(list(y)).reshape(self.__y_shape)
+                x, y = zip(*extended_dataset)
+                self.__x = self.__dataset_creator.reshape_x(x)
+                self.__y = self.__dataset_creator.reshape_y(y)
+            else:
+                x, y = zip(*dataset)
+                self.__x = []
+                for song in x:
+                    self.__x.append(self.__dataset_creator.reshape_x(song))
+                self.__y = self.__dataset_creator.reshape_y(y)
 
         self.__is_loaded = True
         logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))

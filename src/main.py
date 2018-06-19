@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-import subprocess
+
 import tensorflow as tf
 
 from config import config
@@ -11,7 +11,7 @@ from src.dataset.dataset import Dataset
 from src.dataset.dataset_creator import DatasetCreator
 from src.dataset.statistics import DatasetStatistics
 from src.nn.neural_network import NeuralNetwork
-from src.songs.utils import read_song_from_wav
+from src.songs.utils import read_song_from_wav, download_yt_song
 
 logging.getLogger().setLevel(logging.INFO)
 tf.logging.set_verbosity(tf.logging.ERROR)
@@ -57,20 +57,27 @@ def parse_args():
     return args
 
 
-def process_args(args):
+def refine_args(args):
     # Refine the mode of the program.
     if args.create:
         args.mode = "create_dataset"
     elif args.train > 0:
         args.mode = "train"
+        args.epochs = args.train
+        args.train = True
     elif len(args.test) > 0:
         args.mode = "test"
+        args.test_datasets = args.test
+        args.test = True
     elif args.predict:
         args.mode = "predict"
 
+    # Refine dataset equalization.
     args.equalize = True
     if args.no_equalize:
         args.equalize = False
+
+    print("Refined arguments for the program: {0}".format(args))
 
     return args
 
@@ -86,20 +93,17 @@ def create_dataset(creator, equalize):
                            equalize=equalize)
 
 
-def train(nn, genre_mapper, num_epochs, x_shape, y_shape):
-    logging.info("You're going to train the model on the existing dataset.")
-    # TODO: Log information about the paths.
-
+def train(nn, genre_mapper, dataset_creator, num_epochs):
     train_dataset = Dataset(name="training",
                             path=config.PATH_TRAINING_DATASET,
-                            x_shape=x_shape, y_shape=y_shape)
+                            dataset_creator=dataset_creator)
     train_stats = DatasetStatistics(train_dataset, genre_mapper)
     train_stats.all()
     train_x, train_y = train_dataset.get()
 
     val_dataset = Dataset(name="validation",
                           path=config.PATH_VALIDATION_DATASET,
-                          x_shape=x_shape, y_shape=y_shape)
+                          dataset_creator=dataset_creator)
     val_stats = DatasetStatistics(val_dataset, genre_mapper)
     val_stats.all()
     val_x, val_y = val_dataset.get()
@@ -112,7 +116,7 @@ def train(nn, genre_mapper, num_epochs, x_shape, y_shape):
     nn.save(config.PATH_MODEL)
 
 
-def test(classifier, genre_mapper, datasets, x_shape, y_shape):
+def test(classifier, genre_mapper, dataset_creator, datasets):
     path = {"training": config.PATH_TRAINING_DATASET,
             "validation": config.PATH_VALIDATION_DATASET,
             "testing": config.PATH_TESTING_DATASET}
@@ -120,7 +124,7 @@ def test(classifier, genre_mapper, datasets, x_shape, y_shape):
     for name in datasets:
         print("------")
         test_dataset = Dataset(name=name, path=path[name],
-                               x_shape=x_shape, y_shape=y_shape)
+                               dataset_creator=dataset_creator)
         test_dataset.load(False)
         test_stats = DatasetStatistics(test_dataset, genre_mapper)
         test_stats.all()
@@ -133,74 +137,51 @@ def test(classifier, genre_mapper, datasets, x_shape, y_shape):
         test_stats.confusion_matrix(genres_pred)
 
 
-def song_id(path):
-    return path.replace("/", " ").replace("=", " ").split()[-1]
-
-
-def get_youtube_url(path):
-    return "https://www.youtube.com/watch?v=" + song_id(path)
-
-
-def download_youtube_song(url):
-    subprocess.call("youtube-dl "
-                    "--extract-audio "
-                    "--quiet "
-                    "--audio-format {0} "
-                    "--output {1} "
-                    "{2}"
-                    .format("wav", "%(id)s.%(ext)s", url).split())
-    path = song_id(url) + ".wav"
-    return path
-
-
-def predict(classifier, genre_mapper, dataset_creator, path):
+def predict(classifier, path):
     from_youtube = False
     if not os.path.isfile(path):
         from_youtube = True
-        url = get_youtube_url(path)
-        path = download_youtube_song(url)
+        path = download_yt_song(path)
 
     song, rate = read_song_from_wav(path)
-    print(classifier.predict_from_raw_song(song, rate))
+    print(classifier.predict_song_from_raw_song(song, rate))
     print(classifier.predict_counting_from_raw_song(song, rate))
 
     if from_youtube:
-        subprocess.call("rm ./{0}".format(path).split())
+        os.remove(path)
 
 
 def main():
-    args = process_args(parse_args())
-    mode = args.mode
+    args = refine_args(parse_args())
 
-    x_shape = [-1, config.SLICE_HEIGHT, config.SLICE_WIDTH, 1]
-    y_shape = [-1, len(config.GENRES)]
+    # Create entitites.
     genre_mapper = GenreMapper(config.GENRES)
     dataset_creator = DatasetCreator(genre_mapper,
-                                     x_shape, y_shape,
-                                     slice_size=config.SLICE_WIDTH,
+                                     slice_height=config.SLICE_HEIGHT,
+                                     slice_width=config.SLICE_WIDTH,
                                      slice_overlap=config.SLICE_OVERLAP)
-
     nn = None
     classifier = None
-    if mode != "create_dataset":
-        nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_HEIGHT,
+    if args.mode != "create_dataset":
+        nn = NeuralNetwork(num_rows=config.SLICE_HEIGHT,
                            num_cols=config.SLICE_WIDTH,
                            num_classes=len(config.GENRES))
         classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
-        if mode != "train" or args.resume:
+        if args.mode != "train" or args.resume:
             nn.load(config.PATH_MODEL)
 
-    if mode == "create_dataset":
+    # Do actual work.
+    if args.mode == "create_dataset":
         create_dataset(dataset_creator, args.equalize)
 
-    elif mode == "train":
-        train(nn, genre_mapper, args.train, x_shape, y_shape)
+    elif args.mode == "train":
+        train(nn, genre_mapper, dataset_creator, args.epochs)
 
-    elif mode == "test":
-        test(classifier, genre_mapper, args.test, x_shape, y_shape)
+    elif args.mode == "test":
+        test(classifier, genre_mapper, dataset_creator, args.test_datasets)
 
-    elif mode == "predict":
-        predict(classifier, genre_mapper, dataset_creator, args.predict)
+    elif args.mode == "predict":
+        predict(classifier, args.predict)
 
 
 if __name__ == "__main__":

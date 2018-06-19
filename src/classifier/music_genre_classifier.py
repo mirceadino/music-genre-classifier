@@ -12,16 +12,19 @@ class MusicGenreClassifier:
         self.__genre_mapper = genre_mapper
         self.__dataset_creator = dataset_creator
 
-    def predict_from_slices(self, slices):
-        counting = self.predict_counting_from_slices(slices)
+    def predict_song_from_counting(self, counting):
         return max(counting.items(), key=lambda pair: pair[1])[0]
 
-    def predict_from_raw_song(self, song, rate):
-        counting = self.predict_counting_from_raw_song(song, rate)
-        return max(counting.items(), key=lambda pair: pair[1])[0]
+    def predict_song_from_slices(self, slices):
+        return self.predict_song_from_counting(
+            self.predict_counting_from_slices(slices))
+
+    def predict_song_from_raw_song(self, song, rate):
+        return self.predict_song_from_counting(
+            self.predict_counting_from_raw_song(song, rate))
 
     def count_predictions(self, predictions):
-        count_per_label = {None: 0}
+        count_per_label = {}
         for label in self.__genre_mapper.labels:
             count_per_label[label] = 0
 
@@ -46,23 +49,34 @@ class MusicGenreClassifier:
         predictions = self.__nn.predict_label(slices)
         return self.count_predictions(predictions)
 
-    def test(self, slices, labels, batch=128):
+    def test(self, songs, y, batch=128):
+        # Merge all song slices into one vector of slices.
+        slices = []
+        for song in songs:
+            slices.extend(song)
+        # Make batch predictions for all the slices.
         all_predictions = []
         for i in range(0, len(slices), batch):
             j = min(len(slices), i + batch)
             all_predictions.extend(self.__nn.predict_label(slices[i:j]))
-        slices_per_song = len(slices) // len(labels)
-        matches = 0
-        total = len(labels)
-        all_genres_pred = []
-        for song_index in range(len(labels)):
-            i = song_index * slices_per_song
-            j = (song_index + 1) * slices_per_song
-            predictions = all_predictions[i:j]
-            predictions = self.count_predictions(predictions)
-            prediction = max(predictions.items(), key=lambda pair: pair[1])[0]
-            genre = self.__genre_mapper.y_to_genre(labels[song_index])
+        # Separate back the predictions per song.
+        predictions_per_song = []
+        i = 0
+        for song in songs:
+            j = i + len(song)
+            predictions_per_song.append(all_predictions[i:j])
+            i = j
+        # Compute all genre predictions per song.
+        genre_pred = []
+        for predictions in predictions_per_song:
+            counting = self.count_predictions(predictions)
+            genre_pred.append(
+                max(counting.items(), key=lambda pair: pair[1])[0])
+        # Compute accuracy.
+        num_matches = 0
+        for i in range(len(songs)):
+            genre = self.__genre_mapper.y_to_genre(y[i])
+            prediction = genre_pred[i]
             if genre == prediction:
-                matches += 1
-            all_genres_pred.append(prediction)
-        return matches / total, all_genres_pred
+                num_matches += 1
+        return num_matches / len(songs), genre_pred
