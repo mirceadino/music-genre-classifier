@@ -49,22 +49,22 @@ class ModelFactory:
         network = input_data(shape=[None, num_rows, num_cols, 1], name='input')
 
         network = conv_2d(network, nb_filter=64, filter_size=2,
-                          activation='elu', weights_init="Xavier")
+                          activation='relu', weights_init="Xavier")
         network = max_pool_2d(network, kernel_size=2)
 
         network = conv_2d(network, nb_filter=128, filter_size=2,
-                          activation='elu', weights_init="Xavier")
+                          activation='relu', weights_init="Xavier")
         network = max_pool_2d(network, kernel_size=2)
 
         network = conv_2d(network, nb_filter=256, filter_size=2,
-                          activation='elu', weights_init="Xavier")
+                          activation='relu', weights_init="Xavier")
         network = max_pool_2d(network, kernel_size=2)
 
         network = conv_2d(network, nb_filter=512, filter_size=2,
-                          activation='elu', weights_init="Xavier")
+                          activation='relu', weights_init="Xavier")
         network = max_pool_2d(network, kernel_size=2)
 
-        network = fully_connected(network, n_units=1024, activation='elu')
+        network = fully_connected(network, n_units=1024, activation='relu')
         network = dropout(network, keep_prob=0.5)
 
         network = fully_connected(network, n_units=num_classes,
@@ -98,24 +98,24 @@ class ModelFactory:
                              name='input')
 
         network = time_distributed(network, conv_2d,
-                                   [64, 2, 1, 'same', 'elu', True, 'Xavier'])
+                                   [64, 2, 1, 'same', 'relu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
 
         network = time_distributed(network, conv_2d,
-                                   [128, 2, 1, 'same', 'elu', True, 'Xavier'])
+                                   [128, 2, 1, 'same', 'relu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
 
         """
         network = time_distributed(network, conv_2d,
-                                   [256, 2, 1, 'same', 'elu', True, 'Xavier'])
+                                   [256, 2, 1, 'same', 'relu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
 
         network = time_distributed(network, conv_2d,
-                                   [512, 2, 1, 'same', 'elu', True, 'Xavier'])
+                                   [512, 2, 1, 'same', 'relu', True, 'Xavier'])
         network = time_distributed(network, max_pool_2d, [2])
         """
 
-        network = time_distributed(network, fully_connected, [1024, 'elu'])
+        network = time_distributed(network, fully_connected, [1024, 'relu'])
         network = time_distributed(network, dropout, [0.5])
 
         network = time_distributed(network, fully_connected,
