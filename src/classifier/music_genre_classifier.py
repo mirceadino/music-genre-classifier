@@ -46,8 +46,11 @@ class MusicGenreClassifier:
         predictions = self.__nn.predict_label(slices)
         return self.count_predictions(predictions)
 
-    def test(self, slices, labels):
-        all_predictions = self.__nn.predict_label(slices)
+    def test(self, slices, labels, batch_size=128):
+        all_predictions = []
+        for i in range(len(slices), batch_size):
+            j = min(len(slices), i + batch_size)
+            all_predictions.extend(self.__nn.predict_label(slices[i:j]))
         slices_per_song = len(slices) // len(labels)
         matches = 0
         total = len(labels)
