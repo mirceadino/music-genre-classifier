@@ -17,7 +17,7 @@ class DatasetStatistics:
 
     def num_slices(self):
         # TODO: Add documentation about the method.
-        print("Total number of slices: {0}".format(len(self.__x)))
+        print("Total number of items: {0}".format(len(self.__y)))
 
     def slices_per_genre(self):
         # TODO: Add documentation about the method.
@@ -45,7 +45,7 @@ class DatasetStatistics:
         print(pd.Series(genre_to_percentage).to_string())
         """
 
-    def confusion_matrix(self, y_pred):
+    def confusion_matrix(self, genres_pred):
         matrix = {}
         for expected_genre in self.__genre_mapper.genres:
             matrix[expected_genre] = {}
@@ -54,9 +54,8 @@ class DatasetStatistics:
 
         for i in range(len(self.__y)):
             expected_y = self.__y[i]
-            predicted_y = y_pred[i]
             expected_genre = self.__genre_mapper.y_to_genre(expected_y)
-            predicted_genre = self.__genre_mapper.y_to_genre(predicted_y)
+            predicted_genre = genres_pred[i]
             matrix[expected_genre][predicted_genre] += 1
 
         print("Confusion matrix:")

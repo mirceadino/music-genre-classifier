@@ -112,7 +112,7 @@ def train(nn, genre_mapper, num_epochs, x_shape, y_shape):
     nn.save(config.PATH_MODEL)
 
 
-def test(nn, genre_mapper, datasets, x_shape, y_shape):
+def test(classifier, genre_mapper, datasets, x_shape, y_shape):
     path = {"training": config.PATH_TRAINING_DATASET,
             "validation": config.PATH_VALIDATION_DATASET,
             "testing": config.PATH_TESTING_DATASET}
@@ -121,23 +121,16 @@ def test(nn, genre_mapper, datasets, x_shape, y_shape):
         print("------")
         test_dataset = Dataset(name=name, path=path[name],
                                x_shape=x_shape, y_shape=y_shape)
+        test_dataset.load(False)
         test_stats = DatasetStatistics(test_dataset, genre_mapper)
         test_stats.all()
         test_x, test_y = test_dataset.get()
 
-        test_accuracy = nn.test(test_x, test_y)
+        test_accuracy, genres_pred = classifier.test(test_x, test_y)
         print("Obtained accuracy for {0} dataset was: {1}.".format(
             test_dataset.name, test_accuracy))
 
-        y_pred = []
-        for i in range(0, len(test_x), config.BATCH_SIZE):
-            j = min(len(test_x), i + config.BATCH_SIZE)
-            x = test_x[i:j]
-            label_pred = nn.predict_label(x)
-            y_pred.extend(
-                list(map(lambda labels: genre_mapper.label_to_y(labels[0]),
-                         label_pred)))
-        test_stats.confusion_matrix(y_pred)
+        test_stats.confusion_matrix(genres_pred)
 
 
 def song_id(path):
@@ -160,10 +153,7 @@ def download_youtube_song(url):
     return path
 
 
-def predict(nn, genre_mapper, dataset_creator, path):
-    nn.load(config.PATH_MODEL)
-    classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
-
+def predict(classifier, genre_mapper, dataset_creator, path):
     from_youtube = False
     if not os.path.isfile(path):
         from_youtube = True
@@ -171,10 +161,11 @@ def predict(nn, genre_mapper, dataset_creator, path):
         path = download_youtube_song(url)
 
     song, rate = read_song_from_wav(path)
-    print(classifier.predict(song, rate))
+    print(classifier.predict_from_raw_song(song, rate))
+    print(classifier.predict_counting_from_raw_song(song, rate))
 
     if from_youtube:
-        subprocess.call("rm {0}".format(path).split())
+        subprocess.call("rm ./{0}".format(path).split())
 
 
 def main():
@@ -184,16 +175,18 @@ def main():
     x_shape = [-1, config.SLICE_HEIGHT, config.SLICE_WIDTH, 1]
     y_shape = [-1, len(config.GENRES)]
     genre_mapper = GenreMapper(config.GENRES)
-    dataset_creator = DatasetCreator("raw_song_to_slices", genre_mapper,
+    dataset_creator = DatasetCreator(genre_mapper,
                                      x_shape, y_shape,
                                      slice_size=config.SLICE_WIDTH,
                                      slice_overlap=config.SLICE_OVERLAP)
 
     nn = None
+    classifier = None
     if mode != "create_dataset":
         nn = NeuralNetwork("cnn_for_slices", num_rows=config.SLICE_HEIGHT,
                            num_cols=config.SLICE_WIDTH,
                            num_classes=len(config.GENRES))
+        classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
         if mode != "train" or args.resume:
             nn.load(config.PATH_MODEL)
 
@@ -204,10 +197,10 @@ def main():
         train(nn, genre_mapper, args.train, x_shape, y_shape)
 
     elif mode == "test":
-        test(nn, genre_mapper, args.test, x_shape, y_shape)
+        test(classifier, genre_mapper, args.test, x_shape, y_shape)
 
     elif mode == "predict":
-        predict(nn, genre_mapper, dataset_creator, args.predict)
+        predict(classifier, genre_mapper, dataset_creator, args.predict)
 
 
 if __name__ == "__main__":

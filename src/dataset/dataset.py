@@ -42,7 +42,7 @@ class Dataset:
     def is_loaded(self):
         return self.__is_loaded
 
-    def load(self):
+    def load(self, extend=True):
         """Loads the dataset. If dataset was already loaded, it reloads it.
 
         Returns:
@@ -55,12 +55,15 @@ class Dataset:
 
         with open(self.__path, "rb") as infile:
             dataset = pickle.load(infile)
+            if extend:
+                extended_dataset = []
+                for slices, label in dataset:
+                    for slice in slices:
+                        extended_dataset.append((slice, label))
+                dataset = extended_dataset
             x, y = zip(*dataset)
             self.__x = np.array(list(x)).reshape(self.__x_shape)
             self.__y = np.array(list(y)).reshape(self.__y_shape)
-            # self.__x = np.array(list(x)).reshape([-1, 128,
-            # config.SLICE_SIZE, 1])
-            # self.__y = np.array(list(y)).reshape([-1, len(config.GENRES)])
 
         self.__is_loaded = True
         logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))

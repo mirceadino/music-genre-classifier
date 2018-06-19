@@ -9,20 +9,13 @@ from src.songs.utils import read_songs_from_csv, read_song_from_wav, \
 
 
 class DatasetCreator:
-    def __init__(self, method_name, genre_mapper, x_shape, y_shape, **kwargs):
-        self.__method = None
+    def __init__(self, genre_mapper, x_shape, y_shape, slice_size,
+                 slice_overlap):
         self.__genre_mapper = genre_mapper
         self.__x_shape = x_shape
         self.__y_shape = y_shape
-        self.__kwargs = kwargs
-
-        if method_name == "raw_song_to_slices":
-            self.__method = self.__raw_song_to_slices
-        elif method_name == "raw_song_to_27_slices":
-            self.__method = self.__raw_song_to_27_slices
-
-        if self.__method is None:
-            raise ValueError("Invalid method to convert raw song to data.")
+        self.__slice_size = slice_size
+        self.__slice_overlap = slice_overlap
 
     def create_dataset(self, path_raw_songs, path_raw_info, path_training,
                        path_validation, path_testing, ratio_validation,
@@ -58,9 +51,6 @@ class DatasetCreator:
             bool: True if successful. False otherwise.
         """
 
-        method = self.__method
-        kwargs = self.__kwargs
-
         logging.info("[+] Creating dataset...")
 
         all_songs = read_songs_from_csv(path_raw_info)
@@ -70,9 +60,9 @@ class DatasetCreator:
                 continue
             path = "".join([path_raw_songs, song.id, ".", song.audio_format])
             waveform, rate = read_song_from_wav(path)
-            slices = method(waveform, rate, **kwargs)
-            slices_and_labels = self.add_label(slices, song)
-            dataset.extend(slices_and_labels)
+            slices = self.song_to_slices(waveform, rate)
+            label = self.__genre_mapper.genre_to_y(song.genre)
+            dataset.append((slices, label))
 
         logging.info("[+] Dataset created!")
 
@@ -91,25 +81,32 @@ class DatasetCreator:
 
         with open(path_training, "wb") as outfile:
             pickle.dump(training_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}"
+        logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(training_dataset), path_training))
 
         with open(path_validation, "wb") as outfile:
             pickle.dump(validation_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}"
+        logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(validation_dataset), path_validation))
 
         with open(path_testing, "wb") as outfile:
             pickle.dump(testing_dataset, outfile)
-        logging.info("[+] {0} slices have been saved to: {1}"
+        logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(testing_dataset), path_testing))
 
         logging.info("[+] Dataset saved!")
 
         return True
 
+    def song_to_slices(self, waveform, rate):
+        return song_to_spectrogram_slices(waveform, rate, self.__slice_size,
+                                          self.__slice_overlap)
+
+    def slices_to_x(self, slices):
+        return np.array(slices).reshape(self.__x_shape)
+
     def song_to_x(self, waveform, rate):
-        return self.__method(waveform, rate, **self.__kwargs)
+        return self.slices_to_x(self.song_to_slices(waveform, rate))
 
     def add_label(self, slices, song):
         label = self.__genre_mapper.genre_to_y(song.genre)
@@ -137,18 +134,3 @@ class DatasetCreator:
             validation_samples.extend(samples[i:j])
             testing_samples.extend(samples[j:])
         return training_samples, validation_samples, testing_samples
-
-    def __raw_song_to_slices(self, waveform, rate, slice_size, slice_overlap):
-        slices = song_to_spectrogram_slices(waveform, rate, slice_size,
-                                            slice_overlap)
-        return np.array(slices).reshape(self.__x_shape)
-
-    def __raw_song_to_27_slices(self, waveform, rate, slice_size,
-                                slice_overlap):
-        slices = song_to_spectrogram_slices(waveform, rate, slice_size,
-                                            slice_overlap)
-        original_slices = slices
-        while len(slices) < 27:
-            slices = slices.extend(original_slices)
-        slices = slices[:27]
-        return np.array(slices).reshape(self.__x_shape)
