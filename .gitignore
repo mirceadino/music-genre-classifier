@@ -2,9 +2,7 @@
 *.idea/*
 
 # datasets and model
-*model/*
-*raw_dataset*/*
-*dataset/*
+*resources/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
