@@ -26,23 +26,23 @@ def cnn_for_slices(num_rows, num_cols, num_classes):
 
     network = input_data(shape=[None, num_rows, num_cols, 1], name='input')
 
-    network = conv_2d(network, nb_filter=64, filter_size=2,
-                      activation='relu', weights_init='Xavier')
+    network = conv_2d(network, nb_filter=64, filter_size=3,
+                      activation='elu', weights_init='Xavier')
     network = max_pool_2d(network, kernel_size=2)
 
-    network = conv_2d(network, nb_filter=128, filter_size=2,
-                      activation='relu', weights_init='Xavier')
+    network = conv_2d(network, nb_filter=128, filter_size=3,
+                      activation='elu', weights_init='Xavier')
     network = max_pool_2d(network, kernel_size=2)
 
-    network = conv_2d(network, nb_filter=256, filter_size=2,
-                      activation='relu', weights_init='Xavier')
+    network = conv_2d(network, nb_filter=256, filter_size=3,
+                      activation='elu', weights_init='Xavier')
     network = max_pool_2d(network, kernel_size=2)
 
-    network = conv_2d(network, nb_filter=512, filter_size=2,
-                      activation='relu', weights_init='Xavier')
+    network = conv_2d(network, nb_filter=512, filter_size=3,
+                      activation='elu', weights_init='Xavier')
     network = max_pool_2d(network, kernel_size=2)
 
-    network = fully_connected(network, n_units=1024, activation='relu')
+    network = fully_connected(network, n_units=1024, activation='elu')
     network = dropout(network, keep_prob=0.5)
 
     network = fully_connected(network, n_units=num_classes,
