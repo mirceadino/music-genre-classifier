@@ -24,7 +24,7 @@ class Song:
             dictionary (dict): Dictionary of pairs of (attribute, value).
 
         Returns:
-            Song: created song from the dictionary.
+            song (songs.song.Song): created song from the dictionary.
         """
         song = Song(None, None, None, None, None)
         song.__id = dictionary["id"]

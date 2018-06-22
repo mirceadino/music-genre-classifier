@@ -19,7 +19,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 def parse_args():
-    # TODO: Add documentation.
     parser = argparse.ArgumentParser(
         description="Music genre classifier tools.")
 

@@ -8,6 +8,10 @@ class NeuralNetwork:
     predicting."""
 
     def __init__(self, **kwargs):
+        """Creates the model with the provided arguments.
+        Current model is: nn.model.cnn_for_slices(**kwargs). Check the nn.model
+        module for details on which arguments to pass.
+        """
         self.__model = cnn_for_slices(**kwargs)
 
     def load(self, path):
@@ -64,7 +68,8 @@ class NeuralNetwork:
             test_y (numpy.array): Correct outputs.
 
         Returns:
-            float: Top-1 accuracy of the model on the testing dataset.
+            accuracy (float): Top-1 accuracy of the model on the testing
+            dataset.
         """
         logging.info("[+] Starting testing...")
         accuracy = self.__model.evaluate(test_x, test_y)[0]
@@ -75,11 +80,10 @@ class NeuralNetwork:
         """Predicts the labels of x in decreasing order of likelihood.
 
         Args:
-            x (array or list of array): Input for which we want the prediction.
+            x (list): Input for which we want the prediction.
 
         Returns:
-            array or list of array: Predicted labels in decreasing order of
-            likelihood.
+            labels (list): Predicted labels in decreasing order of likelihood.
 
         Example:
             If the predicted probabilities are [0.2 0.5 0.3], the method will
@@ -92,9 +96,9 @@ class NeuralNetwork:
         """Predicts the likelihood of x to each class.
 
         Args:
-            x (array or list of array): Input for which we want the prediction.
+            x (list): Input for which we want the prediction.
 
         Returns:
-            array or list of array: Predicted probabilities.
+            probabilities (list): Predicted probabilities.
         """
         return self.__model.predict(x)

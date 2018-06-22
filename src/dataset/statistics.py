@@ -3,25 +3,36 @@ import pandas as pd
 
 
 class DatasetStatistics:
-    # TODO: Add documentation about the class.
+    """Prints statistics about a dataset and predictions. All stats are
+    printed to stdout.
+    """
 
-    def __init__(self, dataset, genre_mapper):
-        # TODO: Add documentation about the method.
+    def __init__(self, dataset, mapper):
+        """Creates a DatasetStatistics.
+
+        Args:
+            dataset (dataset.dataset.Dataset): Dataset for which we want stats.
+            mapper (classifier.genre_mapper.GenreMapper): Mapper for genres.
+        """
         self.__dataset = dataset
-        self.__genre_mapper = genre_mapper
+        self.__mapper = mapper
         self.__x, self.__y = self.__dataset.get()
 
     def all(self):
+        """Print all stats.
+        """
         self.num_slices()
         self.slices_per_genre()
 
     def num_slices(self):
-        # TODO: Add documentation about the method.
+        """Prints the number of samples.
+        """
         print("Total number of items: {0}".format(len(self.__y)))
 
     def slices_per_genre(self):
-        # TODO: Add documentation about the method.
-        mapper = self.__genre_mapper
+        """Prints the distribution of the samples.
+        """
+        mapper = self.__mapper
         genres = list(
             map(lambda y: mapper.label_to_genre(np.argsort(y)[-1]), self.__y))
         genre_to_count = {}
@@ -38,23 +49,24 @@ class DatasetStatistics:
 
         print("Frequency of each genre:")
         print(pd.DataFrame(matrix).to_string())
-        """
-        print("Frequency (count) of each genre:")
-        print(pd.Series(genre_to_count).to_string())
-        print("Frequency (percentage) of each genre:")
-        print(pd.Series(genre_to_percentage).to_string())
-        """
 
     def confusion_matrix(self, genres_pred):
+        """Prints the confusion matrix given the predictions. It counts the
+        matches and mismatches between the correct genres from the dataset
+        and the predicted genres that are provided.
+
+        Args:
+            genres_pred (list of str): Predictions for each sample.
+        """
         matrix = {}
-        for expected_genre in self.__genre_mapper.genres:
+        for expected_genre in self.__mapper.genres:
             matrix[expected_genre] = {}
-            for predicted_genre in self.__genre_mapper.genres:
+            for predicted_genre in self.__mapper.genres:
                 matrix[expected_genre][predicted_genre] = 0
 
         for i in range(len(self.__y)):
             expected_y = self.__y[i]
-            expected_genre = self.__genre_mapper.y_to_genre(expected_y)
+            expected_genre = self.__mapper.y_to_genre(expected_y)
             predicted_genre = genres_pred[i]
             matrix[expected_genre][predicted_genre] += 1
 

@@ -9,10 +9,28 @@ from src.songs.utils import read_songs_from_csv, read_song_from_wav, \
 
 
 class DatasetCreator:
-    def __init__(self, genre_mapper, slice_height, slice_width, slice_overlap):
-        self.__genre_mapper = genre_mapper
+    """Creates datasets (training, validation, testing) from raw input (reads
+    metadata and .wav files), provides a method to convert an in-memory
+    raw song to a form to be fed to the model as input, and provides methods
+    to reshape data for the model."""
+
+    def __init__(self, mapper, slice_height, slice_width, slice_overlap):
+        """Creates a creator.
+        The shape of x will be set to [-1, slice_height, slice_width, 1].
+        The shape of y will be set to [-1, num_genres].
+
+        Args:
+            mapper (classifier.GenreMapper): Mapper for genres.
+            slice_height (int): Height of slice for reshaping (usually 128
+            because that's what the mel-spectrogram does, so it should be set
+            automatically somehow).
+            slice_width (int): Width of a slice for slicing up and reshaping.
+            slice_overlap (int): Overlap between slices for slicing up. A
+            negative overlap indicates space between slices.
+        """
+        self.__mapper = mapper
         self.__x_shape = [-1, slice_height, slice_width, 1]
-        self.__y_shape = [-1, len(genre_mapper.genres)]
+        self.__y_shape = [-1, len(mapper.genres)]
         self.__slice_width = slice_width
         self.__slice_overlap = slice_overlap
 
@@ -20,15 +38,6 @@ class DatasetCreator:
                        path_validation, path_testing, ratio_validation,
                        ratio_testing, equalize):
         """Converts raw data to data that can be fed to the neural network.
-
-        Methods:
-            raw_song_to_slices: A song is divided into equally sized slices.
-                All the resulting slices will be x with the song label as y.
-
-                Method args:
-                    slice_width (int): Size of the slice.
-                    slice_overlap (int): Overlap of the slices.
-                    genre_mapper (GenreMapper): Mapper to be used.
 
         Args:
             path_raw_songs (str): Path where the raw songs are stored.
@@ -44,10 +53,8 @@ class DatasetCreator:
             equalize (bool): Whether to equalize the dataset or not such that
                 is the same number of samples for each label. This is done by
                 resizing each category to the minimum positive number of
-                samples.
-
-        Returns:
-            bool: True if successful. False otherwise.
+                samples. If set to True, the datasets will have (
+                usually) uniform distribution.
         """
 
         logging.info("[+] Creating dataset...")
@@ -55,12 +62,12 @@ class DatasetCreator:
         all_songs = read_songs_from_csv(path_raw_info)
         dataset = []
         for song in all_songs:
-            if song.genre not in self.__genre_mapper.genres:
+            if song.genre not in self.__mapper.genres:
                 continue
             path = "".join([path_raw_songs, song.id, ".", song.audio_format])
             waveform, rate = read_song_from_wav(path)
             slices = self.song_to_slices(waveform, rate)
-            label = self.__genre_mapper.genre_to_y(song.genre)
+            label = self.__mapper.genre_to_y(song.genre)
             dataset.append((slices, label))
 
         logging.info("[+] Dataset created!")
@@ -95,25 +102,73 @@ class DatasetCreator:
 
         logging.info("[+] Dataset saved!")
 
-        return True
-
     def song_to_slices(self, waveform, rate):
+        """Converts a raw song to a list of slices to be fed to the model.
+
+        Args:
+            waveform (list): Samples of the song.
+            rate (int): Sampling rate of the song.
+
+        Returns:
+            slices (list of numpy.array's): List of slices.
+        """
         return song_to_spectrogram_slices(waveform, rate, self.__slice_width,
                                           self.__slice_overlap)
 
     def slices_to_x(self, slices):
+        """Reshapes the slices to the shape accepted by the model.
+
+        Args:
+            slices (list or numpy.array): Slices.
+
+        Return:
+            new_x (numpy.array): Reshaped output.
+        """
         return np.array(slices).reshape(self.__x_shape)
 
     def song_to_x(self, waveform, rate):
+        """Converts a song to the vectorial form accepted by the model.
+
+        Args:
+            waveform (list): Samples of the song.
+            rate (int): Sampling rate of the song.
+
+        Return:
+            new_x (numpy.array): Reshaped output.
+        """
         return self.slices_to_x(self.song_to_slices(waveform, rate))
 
     def reshape_x(self, x):
+        """Reshapes a numpy.array to the shape accepted by the model.
+
+        Args:
+            x (list or numpy.array): Input.
+
+        Return:
+            new_x (numpy.array): Reshaped output.
+        """
         return np.array(list(x)).reshape(self.__x_shape)
 
     def reshape_y(self, y):
+        """Reshapes a numpy.array to the shape outputted by the model.
+
+        Args:
+            y (list or numpy.array): Input.
+
+        Return:
+            new_y (numpy.array): Reshaped output.
+        """
         return np.array(list(y)).reshape(self.__y_shape)
 
     def __equalize(self, dataset, ratio_validation, ratio_testing):
+        """Equalizes a dataset (list of tuples) such that it is uniformly
+        distributed.
+
+        Returns:
+            training_samples (list of tuples): x and y for training.
+            validation_samples (list of tuples): x and y for validation.
+            testing_samples (list of tuples): x and y for testing.
+        """
         x_per_y = {}
         for x, y in dataset:
             if str(y) in x_per_y.keys():
