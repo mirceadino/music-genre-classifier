@@ -92,18 +92,16 @@ def create_dataset(creator, equalize):
                            equalize=equalize)
 
 
-def train(nn, genre_mapper, dataset_creator, num_epochs):
+def train(nn, mapper, creator, num_epochs):
     train_dataset = Dataset(name="training",
-                            path=config.PATH_TRAINING_DATASET,
-                            dataset_creator=dataset_creator)
-    train_stats = DatasetStatistics(train_dataset, genre_mapper)
+                            path=config.PATH_TRAINING_DATASET, creator=creator)
+    train_stats = DatasetStatistics(train_dataset, mapper)
     train_stats.all()
     train_x, train_y = train_dataset.get()
 
     val_dataset = Dataset(name="validation",
-                          path=config.PATH_VALIDATION_DATASET,
-                          dataset_creator=dataset_creator)
-    val_stats = DatasetStatistics(val_dataset, genre_mapper)
+                          path=config.PATH_VALIDATION_DATASET, creator=creator)
+    val_stats = DatasetStatistics(val_dataset, mapper)
     val_stats.all()
     val_x, val_y = val_dataset.get()
 
@@ -115,7 +113,7 @@ def train(nn, genre_mapper, dataset_creator, num_epochs):
     nn.save(config.PATH_MODEL)
 
 
-def test(classifier, genre_mapper, dataset_creator, datasets):
+def test(classifier, mapper, creator, datasets):
     path = {"training": config.PATH_TRAINING_DATASET,
             "validation": config.PATH_VALIDATION_DATASET,
             "testing": config.PATH_TESTING_DATASET}
@@ -123,9 +121,9 @@ def test(classifier, genre_mapper, dataset_creator, datasets):
     for name in datasets:
         print("------")
         test_dataset = Dataset(name=name, path=path[name],
-                               dataset_creator=dataset_creator)
+                               creator=creator)
         test_dataset.load(False)
-        test_stats = DatasetStatistics(test_dataset, genre_mapper)
+        test_stats = DatasetStatistics(test_dataset, mapper)
         test_stats.all()
         test_x, test_y = test_dataset.get()
 
@@ -154,30 +152,29 @@ def main():
     args = refine_args(parse_args())
 
     # Create entitites.
-    genre_mapper = GenreMapper(config.GENRES)
-    dataset_creator = DatasetCreator(genre_mapper,
-                                     slice_height=config.SLICE_HEIGHT,
-                                     slice_width=config.SLICE_WIDTH,
-                                     slice_overlap=config.SLICE_OVERLAP)
+    mapper = GenreMapper(config.GENRES)
+    creator = DatasetCreator(mapper, slice_height=config.SLICE_HEIGHT,
+                             slice_width=config.SLICE_WIDTH,
+                             slice_overlap=config.SLICE_OVERLAP)
     nn = None
     classifier = None
     if args.mode != "create_dataset":
         nn = NeuralNetwork(num_rows=config.SLICE_HEIGHT,
                            num_cols=config.SLICE_WIDTH,
                            num_classes=len(config.GENRES))
-        classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
+        classifier = MusicGenreClassifier(nn, mapper, creator)
         if args.mode != "train" or args.resume:
             nn.load(config.PATH_MODEL)
 
     # Do actual work.
     if args.mode == "create_dataset":
-        create_dataset(dataset_creator, args.equalize)
+        create_dataset(creator, args.equalize)
 
     elif args.mode == "train":
-        train(nn, genre_mapper, dataset_creator, args.epochs)
+        train(nn, mapper, creator, args.epochs)
 
     elif args.mode == "test":
-        test(classifier, genre_mapper, dataset_creator, args.test_datasets)
+        test(classifier, mapper, creator, args.test_datasets)
 
     elif args.mode == "predict":
         predict(classifier, args.predict)
