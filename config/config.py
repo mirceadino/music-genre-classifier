@@ -4,7 +4,7 @@ GENRES = sorted(["blues", "classical", "country", "disco", "hiphop", "jazz", "me
 # Model
 NUM_CLASSES = len(GENRES)
 SLICE_HEIGHT = 128
-SLICE_WIDTH = 256
+SLICE_WIDTH = 128
 SLICE_OVERLAP = 64
 PATH_MODEL = "resources/model/gtzan-10/model-yy.tflearn"
 
