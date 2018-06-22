@@ -24,6 +24,8 @@ CORS(app)
 
 
 def get_classifier():
+    """Instantiates the classifier and other necessary entities.
+    """
     genre_mapper = GenreMapper(config.GENRES)
     dataset_creator = DatasetCreator(genre_mapper,
                                      slice_height=config.SLICE_HEIGHT,

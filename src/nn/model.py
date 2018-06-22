@@ -9,8 +9,8 @@ from tflearn.layers.estimator import regression
 def cnn_for_slices(num_rows, num_cols, num_classes):
     """The model will have:
     - an input layer of shape (batch_size, num_rows, num_cols, 1)
-    - convolutional layers (conv_2d and max_pool_2d)
-    - fully connected and dropout layers
+    - convolutional blocks (conv_2d and max_pool_2d)
+    - learning blocks (fully_connected and dropout).
     - an output regression layer of shape (batch_size, num_classes)
 
     Args:
