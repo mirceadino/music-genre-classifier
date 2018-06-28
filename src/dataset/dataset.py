@@ -1,5 +1,19 @@
 import logging
+import os
 import pickle
+
+
+def load_from_file(path):
+    max_bytes = 2 ** 31 - 1
+
+    ## read
+    bytes_in = bytearray(0)
+    input_size = os.path.getsize(path)
+    with open(path, 'rb') as f_in:
+        for _ in range(0, input_size, max_bytes):
+            bytes_in += f_in.read(max_bytes)
+    data = pickle.loads(bytes_in)
+    return data
 
 
 class Dataset:
@@ -71,22 +85,21 @@ class Dataset:
 
         self.__is_loaded = False
 
-        with open(self.__path, "rb") as infile:
-            dataset = pickle.load(infile)
-            if extend:
-                extended_dataset = []
-                for slices, label in dataset:
-                    for slice in slices:
-                        extended_dataset.append((slice, label))
-                x, y = zip(*extended_dataset)
-                self.__x = self.__creator.reshape_x(x)
-                self.__y = self.__creator.reshape_y(y)
-            else:
-                x, y = zip(*dataset)
-                self.__x = []
-                for song in x:
-                    self.__x.append(self.__creator.reshape_x(song))
-                self.__y = self.__creator.reshape_y(y)
+        dataset = load_from_file(self.__path)
+        if extend:
+            extended_dataset = []
+            for slices, label in dataset:
+                for slice in slices:
+                    extended_dataset.append((slice, label))
+            x, y = zip(*extended_dataset)
+            self.__x = self.__creator.reshape_x(x)
+            self.__y = self.__creator.reshape_y(y)
+        else:
+            x, y = zip(*dataset)
+            self.__x = []
+            for song in x:
+                self.__x.append(self.__creator.reshape_x(song))
+            self.__y = self.__creator.reshape_y(y)
 
         self.__is_loaded = True
         logging.info("[+] Dataset \"{0}\" loaded!".format(self.__name))

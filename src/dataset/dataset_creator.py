@@ -8,6 +8,16 @@ from src.songs.utils import read_songs_from_csv, read_song_from_wav, \
     song_to_spectrogram_slices
 
 
+def dump_to_file(data, path):
+    max_bytes = 2 ** 31 - 1
+
+    ## write
+    bytes_out = pickle.dumps(data)
+    with open(path, 'wb') as f_out:
+        for idx in range(0, len(bytes_out), max_bytes):
+            f_out.write(bytes_out[idx:idx + max_bytes])
+
+
 class DatasetCreator:
     """Creates datasets (training, validation, testing) from raw input (reads
     metadata and .wav files), provides a method to convert an in-memory
@@ -85,18 +95,15 @@ class DatasetCreator:
             validation_dataset = dataset[i:j]
             testing_dataset = dataset[j:]
 
-        with open(path_training, "wb") as outfile:
-            pickle.dump(training_dataset, outfile)
+        dump_to_file(training_dataset, path_training)
         logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(training_dataset), path_training))
 
-        with open(path_validation, "wb") as outfile:
-            pickle.dump(validation_dataset, outfile)
+        dump_to_file(validation_dataset, path_validation)
         logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(validation_dataset), path_validation))
 
-        with open(path_testing, "wb") as outfile:
-            pickle.dump(testing_dataset, outfile)
+        dump_to_file(testing_dataset, path_testing)
         logging.info("[+] {0} items have been saved to: {1}"
                      .format(len(testing_dataset), path_testing))
 
