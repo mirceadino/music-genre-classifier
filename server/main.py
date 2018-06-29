@@ -34,6 +34,7 @@ def get_classifier():
     nn = NeuralNetwork(num_rows=config.SLICE_HEIGHT,
                        num_cols=config.SLICE_WIDTH,
                        num_classes=len(config.GENRES))
+    nn.load(config.PATH_MODEL)
     classifier = MusicGenreClassifier(nn, genre_mapper, dataset_creator)
     return classifier
 
