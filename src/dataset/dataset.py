@@ -1,19 +1,6 @@
 import logging
-import os
-import pickle
 
-
-def load_from_file(path):
-    max_bytes = 2 ** 31 - 1
-
-    ## read
-    bytes_in = bytearray(0)
-    input_size = os.path.getsize(path)
-    with open(path, 'rb') as f_in:
-        for _ in range(0, input_size, max_bytes):
-            bytes_in += f_in.read(max_bytes)
-    data = pickle.loads(bytes_in)
-    return data
+from src.songs.utils import load_from_file
 
 
 class Dataset:

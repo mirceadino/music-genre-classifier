@@ -1,21 +1,10 @@
 import logging
-import pickle
 import random
 
 import numpy as np
 
 from src.songs.utils import read_songs_from_csv, read_song_from_wav, \
-    song_to_spectrogram_slices
-
-
-def dump_to_file(data, path):
-    max_bytes = 2 ** 31 - 1
-
-    ## write
-    bytes_out = pickle.dumps(data)
-    with open(path, 'wb') as f_out:
-        for idx in range(0, len(bytes_out), max_bytes):
-            f_out.write(bytes_out[idx:idx + max_bytes])
+    song_to_spectrogram_slices, dump_to_file
 
 
 class DatasetCreator:

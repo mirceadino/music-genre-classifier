@@ -1,4 +1,6 @@
 import csv
+import os
+import pickle
 
 import librosa
 import re
@@ -155,3 +157,40 @@ def download_yt_song(url, output_directory="/tmp", audio_format="wav"):
                     .format(audio_format, output_filename_format, url).split())
     path = output_directory + song_id_from_yt_url(url) + "." + audio_format
     return path
+
+
+def dump_to_file(data, path):
+    """Serializes and dumps data to file.
+
+    Args:
+        data (any type): Data to be serialized and dumped
+        path (str): Path of the file.
+    """
+    max_bytes = 2 ** 31 - 1
+
+    # Write in chunks of max_bytes.
+    bytes_out = pickle.dumps(data)
+    with open(path, 'wb') as outfile:
+        for i in range(0, len(bytes_out), max_bytes):
+            outfile.write(bytes_out[i:i + max_bytes])
+
+
+def load_from_file(path):
+    """Loads and deserializes data from file.
+
+    Args:
+        path (str): Path of the file where data is stored.
+
+    Return:
+        data (any type): Data that was read from the file.
+    """
+    max_bytes = 2 ** 31 - 1
+
+    # Read in chunks of max_bytes.
+    bytes_in = bytearray(0)
+    input_size = os.path.getsize(path)
+    with open(path, 'rb') as infile:
+        for i in range(0, input_size, max_bytes):
+            bytes_in += infile.read(max_bytes)
+    data = pickle.loads(bytes_in)
+    return data
