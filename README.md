@@ -3,7 +3,7 @@
 
 ## About
 
-This is the practical part of my project for my Bachelor Thesis. We proposed an approach for music genre classification with deep learning based on audio signal processing. It consists of training a convolutional neural network on slices of the mel-spectrogram of songs and developing a classifier that would encapsulate the trained model and make final predictions.
+This is the practical part of my project for my Bachelor Thesis ([abstract](https://drive.google.com/file/d/1wViCTlQ3BarVnTXCXDQOEXc3IgCep4yj/view?usp=sharing), [thesis](https://drive.google.com/file/d/1HAQACTiPUJvISyhBfj8pgcjJ6xieqJdI/view?usp=sharing)). We proposed an approach for music genre classification with deep learning based on audio signal processing. It consists of training a convolutional neural network on slices of the mel-spectrogram of songs and developing a classifier that would encapsulate the trained model and make final predictions.
 
 We developed a library and a web application that illustrate our approach. The library wraps the model and the classifier and provides some utilities for data gathering and data processing. It also contains a command-line tool which supports some basic functions: converting the dataset into an adequate form for the classifier, training the model, evaluating it, and predicting individual songs. The web application is designed as a client-server model and can be used to perform online predictions using a trained classifier.
 
